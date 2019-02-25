@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn import preprocessing
 
 # parameters
-num_input = 42
+num_input = 7#42
 num_output = 2
 
 
@@ -20,7 +20,8 @@ y_data_raw = []
 for line in rdr:
     line = [float(i) for i in line]
     t.append(line[0])
-    x_data_raw.append(line[1:num_input+1])
+    #x_data_raw.append(line[1:num_input+1])
+    x_data_raw.append(line[36:43])
     y_data_raw.append(line[-num_output:])
 
 t = np.reshape(t,(-1,1))
@@ -57,8 +58,8 @@ accuracy = np.mean(correct_prediction)
 print("Accuracy : %f" % accuracy)
 
 
-plt.plot(t,y_data_raw[:,0], 'r', label='real')
-plt.plot(t,hypo[:,0], 'b', label='prediction')
+plt.plot(t,y_data_raw[:,0], color='r', marker="o", label='real')
+plt.plot(t,hypo[:,0], color='b',marker="x", label='prediction')
 plt.xlabel('time')
 plt.ylabel('Collision Probability')
 plt.legend()

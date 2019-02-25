@@ -1,6 +1,6 @@
 RawData = load('training_data.txt');
 
-RawData(:,86) = -RawData(:,85)+1;
+%RawData(:,86) = -RawData(:,85)+1;
 
 Training = RawData(randperm(fix(size(RawData,1)*1.0)),:);
 Validation = RawData(randperm(fix(size(RawData,1)*1.0)),:);

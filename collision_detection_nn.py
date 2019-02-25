@@ -43,57 +43,58 @@ class Model:
             #L2 = tf.nn.sigmoid(tf.matmul(L1, W2) + b2)
             L2 = tf.nn.dropout(L2, keep_prob=self.keep_prob)
 
-            W3 = tf.get_variable("W3", shape=[80, 80], initializer=tf.contrib.layers.xavier_initializer())
-            b3 = tf.Variable(tf.random_normal([80]))
-            L3 = tf.matmul(L2, W3) +b3
-            L3 = tf.nn.relu(L3)
-            #L3 = tf.nn.relu(tf.sigmoid(L2, W3) + b3)
-            L3 = tf.nn.dropout(L3, keep_prob=self.keep_prob)
+            # W3 = tf.get_variable("W3", shape=[80, 80], initializer=tf.contrib.layers.xavier_initializer())
+            # b3 = tf.Variable(tf.random_normal([80]))
+            # L3 = tf.matmul(L2, W3) +b3
+            # L3 = tf.nn.relu(L3)
+            # #L3 = tf.nn.relu(tf.sigmoid(L2, W3) + b3)
+            # L3 = tf.nn.dropout(L3, keep_prob=self.keep_prob)
 
-            W4 = tf.get_variable("W4", shape=[80, 80], initializer=tf.contrib.layers.xavier_initializer())
-            b4 = tf.Variable(tf.random_normal([80]))
-            L4 = tf.matmul(L3, W4) +b4
-            L4 = tf.nn.relu(L4)
-            #L4 = tf.nn.relu(tf.sigmoid(L3, W4) + b4)
-            L4 = tf.nn.dropout(L4, keep_prob=self.keep_prob)
+            # W4 = tf.get_variable("W4", shape=[80, 80], initializer=tf.contrib.layers.xavier_initializer())
+            # b4 = tf.Variable(tf.random_normal([80]))
+            # L4 = tf.matmul(L3, W4) +b4
+            # L4 = tf.nn.relu(L4)
+            # #L4 = tf.nn.relu(tf.sigmoid(L3, W4) + b4)
+            # L4 = tf.nn.dropout(L4, keep_prob=self.keep_prob)
 
-            W5 = tf.get_variable("W5", shape=[80, 80], initializer=tf.contrib.layers.xavier_initializer())
-            b5 = tf.Variable(tf.random_normal([80]))
-            L5 = tf.matmul(L4, W5) +b5
-            L5 = tf.nn.relu(L5)
-            #L3 = tf.nn.relu(tf.sigmoid(L2, W3) + b3)
-            L5 = tf.nn.dropout(L5, keep_prob=self.keep_prob)
+            # W5 = tf.get_variable("W5", shape=[80, 80], initializer=tf.contrib.layers.xavier_initializer())
+            # b5 = tf.Variable(tf.random_normal([80]))
+            # L5 = tf.matmul(L4, W5) +b5
+            # L5 = tf.nn.relu(L5)
+            # #L3 = tf.nn.relu(tf.sigmoid(L2, W3) + b3)
+            # L5 = tf.nn.dropout(L5, keep_prob=self.keep_prob)
 
-            W6 = tf.get_variable("W6", shape=[80, 80], initializer=tf.contrib.layers.xavier_initializer())
-            b6 = tf.Variable(tf.random_normal([80]))
-            L6 = tf.matmul(L5, W6) +b6
-            L6 = tf.nn.relu(L6)
-            #L4 = tf.nn.relu(tf.sigmoid(L3, W4) + b4)
-            L6 = tf.nn.dropout(L6, keep_prob=self.keep_prob)
+            # W6 = tf.get_variable("W6", shape=[80, 80], initializer=tf.contrib.layers.xavier_initializer())
+            # b6 = tf.Variable(tf.random_normal([80]))
+            # L6 = tf.matmul(L5, W6) +b6
+            # L6 = tf.nn.relu(L6)
+            # #L4 = tf.nn.relu(tf.sigmoid(L3, W4) + b4)
+            # L6 = tf.nn.dropout(L6, keep_prob=self.keep_prob)
 
-            W7 = tf.get_variable("W7", shape=[80, 80], initializer=tf.contrib.layers.xavier_initializer())
-            b7 = tf.Variable(tf.random_normal([80]))
-            L7 = tf.matmul(L6, W7) +b7
-            L7 = tf.nn.relu(L7)
-            #L4 = tf.nn.relu(tf.sigmoid(L3, W4) + b4)
-            L7 = tf.nn.dropout(L7, keep_prob=self.keep_prob)
+            # W7 = tf.get_variable("W7", shape=[80, 80], initializer=tf.contrib.layers.xavier_initializer())
+            # b7 = tf.Variable(tf.random_normal([80]))
+            # L7 = tf.matmul(L6, W7) +b7
+            # L7 = tf.nn.relu(L7)
+            # #L4 = tf.nn.relu(tf.sigmoid(L3, W4) + b4)
+            # L7 = tf.nn.dropout(L7, keep_prob=self.keep_prob)
 
-            W8 = tf.get_variable("W8", shape=[80, 80], initializer=tf.contrib.layers.xavier_initializer())
-            b8 = tf.Variable(tf.random_normal([80]))
-            L8 = tf.matmul(L7, W8) +b8
-            L8 = tf.nn.relu(L8)
-            #L4 = tf.nn.relu(tf.sigmoid(L3, W4) + b4)
-            L8 = tf.nn.dropout(L8, keep_prob=self.keep_prob)
+            # W8 = tf.get_variable("W8", shape=[80, 80], initializer=tf.contrib.layers.xavier_initializer())
+            # b8 = tf.Variable(tf.random_normal([80]))
+            # L8 = tf.matmul(L7, W8) +b8
+            # L8 = tf.nn.relu(L8)
+            # #L4 = tf.nn.relu(tf.sigmoid(L3, W4) + b4)
+            # L8 = tf.nn.dropout(L8, keep_prob=self.keep_prob)
 
             W9 = tf.get_variable("W9", shape=[80, num_output], initializer=tf.contrib.layers.xavier_initializer())
             b9 = tf.Variable(tf.random_normal([num_output]))
-            self.hypothesis = tf.nn.softmax(tf.matmul(L8, W9) + b9)
+            self.logits = tf.matmul(L2, W9) + b9
+            self.hypothesis = tf.nn.softmax(self.logits)
             self.hypothesis = tf.identity(self.hypothesis, "hypothesis")
 
             # define cost/loss & optimizer
-            self.l2_reg = tf.nn.l2_loss(W1) + tf.nn.l2_loss(W2) + tf.nn.l2_loss(W3) + tf.nn.l2_loss(W4) + tf.nn.l2_loss(W5) + tf.nn.l2_loss(W6) + tf.nn.l2_loss(W7)
+            self.l2_reg = tf.nn.l2_loss(W1)# + tf.nn.l2_loss(W2) + tf.nn.l2_loss(W3) + tf.nn.l2_loss(W4) + tf.nn.l2_loss(W5) + tf.nn.l2_loss(W6) + tf.nn.l2_loss(W7)
             self.l2_reg = regul_factor* self.l2_reg
-            self.cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.hypothesis, labels=self.Y))
+            self.cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.logits, labels=self.Y))
             #self.cost = tf.reduce_mean(tf.reduce_mean(tf.square(self.hypothesis - self.Y)))
             self.optimizer = tf.train.AdamOptimizer(learning_rate= learning_rate).minimize(self.cost + self.l2_reg)
         
@@ -115,6 +116,7 @@ class Model:
         for line in data:
             line = [float(i) for i in line]
             x_batch.append(line[1:num_input+1])
+            #x_batch.append(line[36:43])
             y_batch.append(line[-num_output:])
             #y_batch.append(line[-output_idx])
             i = i+1
@@ -123,7 +125,7 @@ class Model:
                 break
         return [np.asarray(np.reshape(x_batch, (-1, num_input))), np.asarray(np.reshape(y_batch,(-1,num_output)))]
 # input/output number
-num_input = 42
+num_input = 42#28#7
 num_output = 2
 output_idx = 6
 # loading testing data
@@ -137,6 +139,7 @@ for line in rdr_test:
     line = [float(i) for i in line]
     t.append(line[0])
     x_data_test.append(line[1:num_input+1])
+    #x_data_test.append(line[36:43])
     y_data_test.append(line[-num_output:])
     #y_data_test.append(line[-output_idx])
 
@@ -153,6 +156,7 @@ y_data_val = []
 for line in rdr_val:
     line = [float(i) for i in line]
     x_data_val.append(line[1:num_input+1])
+    #x_data_val.append(line[36:43])
     y_data_val.append(line[-num_output:])
     #y_data_val.append(line[-output_idx])
 x_data_val = np.reshape(x_data_val, (-1, num_input))
@@ -161,7 +165,7 @@ y_data_val = np.reshape(y_data_val, (-1, num_output))
 
 # parameters
 learning_rate = 0.000001
-training_epochs = 30
+training_epochs = 300
 batch_size = 100
 total_batch = int(np.shape(x_data_test)[0]/batch_size*4)
 drop_out = 1.0
