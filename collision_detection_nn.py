@@ -7,7 +7,7 @@ import time
 import wandb
 import os
 
-wandb_use = True
+wandb_use = False
 start_time = time.time()
 if wandb_use == True:
     wandb.init(project="collision_detection", tensorboard=False)
@@ -71,9 +71,23 @@ class Model:
             #L4 = tf.nn.relu(tf.sigmoid(L3, W4) + b4)
             L6 = tf.nn.dropout(L6, keep_prob=self.keep_prob)
 
-            W7 = tf.get_variable("W7", shape=[80, num_output], initializer=tf.contrib.layers.xavier_initializer())
-            b7 = tf.Variable(tf.random_normal([num_output]))
-            self.hypothesis = tf.nn.softmax(tf.matmul(L6, W7) + b7)
+            W7 = tf.get_variable("W7", shape=[80, 80], initializer=tf.contrib.layers.xavier_initializer())
+            b7 = tf.Variable(tf.random_normal([80]))
+            L7 = tf.matmul(L6, W7) +b7
+            L7 = tf.nn.relu(L7)
+            #L4 = tf.nn.relu(tf.sigmoid(L3, W4) + b4)
+            L7 = tf.nn.dropout(L7, keep_prob=self.keep_prob)
+
+            W8 = tf.get_variable("W8", shape=[80, 80], initializer=tf.contrib.layers.xavier_initializer())
+            b8 = tf.Variable(tf.random_normal([80]))
+            L8 = tf.matmul(L7, W8) +b8
+            L8 = tf.nn.relu(L8)
+            #L4 = tf.nn.relu(tf.sigmoid(L3, W4) + b4)
+            L8 = tf.nn.dropout(L8, keep_prob=self.keep_prob)
+
+            W9 = tf.get_variable("W9", shape=[80, num_output], initializer=tf.contrib.layers.xavier_initializer())
+            b9 = tf.Variable(tf.random_normal([num_output]))
+            self.hypothesis = tf.nn.softmax(tf.matmul(L8, W9) + b9)
             self.hypothesis = tf.identity(self.hypothesis, "hypothesis")
 
             # define cost/loss & optimizer
@@ -109,7 +123,7 @@ class Model:
                 break
         return [np.asarray(np.reshape(x_batch, (-1, num_input))), np.asarray(np.reshape(y_batch,(-1,num_output)))]
 # input/output number
-num_input = 28
+num_input = 42
 num_output = 2
 output_idx = 6
 # loading testing data
@@ -146,8 +160,8 @@ x_data_val = np.reshape(x_data_val, (-1, num_input))
 y_data_val = np.reshape(y_data_val, (-1, num_output))
 
 # parameters
-learning_rate = 0.003
-training_epochs = 1000
+learning_rate = 0.000001
+training_epochs = 30
 batch_size = 100
 total_batch = int(np.shape(x_data_test)[0]/batch_size*4)
 drop_out = 1.0
