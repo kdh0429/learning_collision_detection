@@ -109,7 +109,7 @@ class Model:
                 break
         return [np.asarray(np.reshape(x_batch, (-1, num_input))), np.asarray(np.reshape(y_batch,(-1,num_output)))]
 # input/output number
-num_input = 42
+num_input = 28
 num_output = 2
 output_idx = 6
 # loading testing data
