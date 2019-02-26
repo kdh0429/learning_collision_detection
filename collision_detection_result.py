@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn import preprocessing
 
 # parameters
-num_input = 7#42
+num_input = 42#7#42
 num_output = 2
 
 
@@ -19,15 +19,14 @@ y_data_raw = []
 
 for line in rdr:
     line = [float(i) for i in line]
-    t.append(line[0])
-    #x_data_raw.append(line[1:num_input+1])
-    x_data_raw.append(line[36:43])
+    #t.append(line[0])
+    x_data_raw.append(line[1:num_input+1])
+    #x_data_raw.append(line[36:43])
     y_data_raw.append(line[-num_output:])
-
+t = range(len(x_data_raw))
 t = np.reshape(t,(-1,1))
 x_data_raw = np.reshape(x_data_raw, (-1, num_input))
 y_data_raw = np.reshape(y_data_raw, (-1, num_output))
-
 tf.reset_default_graph()
 sess = tf.Session()
 

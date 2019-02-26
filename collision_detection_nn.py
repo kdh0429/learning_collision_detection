@@ -7,7 +7,7 @@ import time
 import wandb
 import os
 
-wandb_use = False
+wandb_use = True
 start_time = time.time()
 if wandb_use == True:
     wandb.init(project="collision_detection", tensorboard=False)
@@ -29,18 +29,18 @@ class Model:
 
             # weights & bias for nn layers
             # http://stackoverflow.com/questions/33640581/how-to-do-xavier-initialization-on-tensorflow
-            W1 = tf.get_variable("W1", shape=[num_input, 80], initializer=tf.contrib.layers.xavier_initializer())
-            b1 = tf.Variable(tf.random_normal([80]))
+            W1 = tf.get_variable("W1", shape=[num_input, 40], initializer=tf.contrib.layers.xavier_initializer())
+            b1 = tf.Variable(tf.random_normal([40]))
             L1 = tf.matmul(self.X, W1) +b1
-            L1 = tf.nn.relu(L1)
-            #L1 = tf.nn.sigmoid(tf.matmul(self.X, W1) + b1)
+            #L1 = tf.nn.relu(L1)
+            L1 = tf.nn.sigmoid(tf.matmul(self.X, W1) + b1)
             L1 = tf.nn.dropout(L1, keep_prob=self.keep_prob)
 
-            W2 = tf.get_variable("W2", shape=[80, 80], initializer=tf.contrib.layers.xavier_initializer())
-            b2 = tf.Variable(tf.random_normal([80]))
+            W2 = tf.get_variable("W2", shape=[40, 40], initializer=tf.contrib.layers.xavier_initializer())
+            b2 = tf.Variable(tf.random_normal([40]))
             L2 = tf.matmul(L1, W2) +b2
-            L2 = tf.nn.relu(L2)
-            #L2 = tf.nn.sigmoid(tf.matmul(L1, W2) + b2)
+            #L2 = tf.nn.relu(L2)
+            L2 = tf.nn.sigmoid(tf.matmul(L1, W2) + b2)
             L2 = tf.nn.dropout(L2, keep_prob=self.keep_prob)
 
             # W3 = tf.get_variable("W3", shape=[80, 80], initializer=tf.contrib.layers.xavier_initializer())
@@ -85,7 +85,7 @@ class Model:
             # #L4 = tf.nn.relu(tf.sigmoid(L3, W4) + b4)
             # L8 = tf.nn.dropout(L8, keep_prob=self.keep_prob)
 
-            W9 = tf.get_variable("W9", shape=[80, num_output], initializer=tf.contrib.layers.xavier_initializer())
+            W9 = tf.get_variable("W9", shape=[40, num_output], initializer=tf.contrib.layers.xavier_initializer())
             b9 = tf.Variable(tf.random_normal([num_output]))
             self.logits = tf.matmul(L2, W9) + b9
             self.hypothesis = tf.nn.softmax(self.logits)
@@ -115,8 +115,8 @@ class Model:
         i = 0
         for line in data:
             line = [float(i) for i in line]
-            x_batch.append(line[1:num_input+1])
-            #x_batch.append(line[36:43])
+            #x_batch.append(line[1:num_input+1])
+            x_batch.append(line[36:43])
             y_batch.append(line[-num_output:])
             #y_batch.append(line[-output_idx])
             i = i+1
@@ -125,7 +125,7 @@ class Model:
                 break
         return [np.asarray(np.reshape(x_batch, (-1, num_input))), np.asarray(np.reshape(y_batch,(-1,num_output)))]
 # input/output number
-num_input = 42#28#7
+num_input = 7
 num_output = 2
 output_idx = 6
 # loading testing data
@@ -138,8 +138,8 @@ y_data_test = []
 for line in rdr_test:
     line = [float(i) for i in line]
     t.append(line[0])
-    x_data_test.append(line[1:num_input+1])
-    #x_data_test.append(line[36:43])
+    #x_data_test.append(line[1:num_input+1])
+    x_data_test.append(line[36:43])
     y_data_test.append(line[-num_output:])
     #y_data_test.append(line[-output_idx])
 
@@ -155,8 +155,8 @@ x_data_val = []
 y_data_val = []
 for line in rdr_val:
     line = [float(i) for i in line]
-    x_data_val.append(line[1:num_input+1])
-    #x_data_val.append(line[36:43])
+    #x_data_val.append(line[1:num_input+1])
+    x_data_val.append(line[36:43])
     y_data_val.append(line[-num_output:])
     #y_data_val.append(line[-output_idx])
 x_data_val = np.reshape(x_data_val, (-1, num_input))
@@ -164,10 +164,10 @@ x_data_val = np.reshape(x_data_val, (-1, num_input))
 y_data_val = np.reshape(y_data_val, (-1, num_output))
 
 # parameters
-learning_rate = 0.000001
-training_epochs = 300
+learning_rate = 0.000001 #0.000001
+training_epochs = 100
 batch_size = 100
-total_batch = int(np.shape(x_data_test)[0]/batch_size*4)
+total_batch = 1800#int(np.shape(x_data_test)[0]/batch_size*4)
 drop_out = 1.0
 regul_factor = 0.00000
 
@@ -182,7 +182,7 @@ if wandb_use == True:
     wandb.config.activation_function = "ReLU"
     wandb.config.training_episode = 1200
     wandb.config.hidden_layers = 5
-    wandb.config.hidden_neurons = 80
+    wandb.config.hidden_neurons = 40
     wandb.config.L2_regularization = regul_factor
     
 
