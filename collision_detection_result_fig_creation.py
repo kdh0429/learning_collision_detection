@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn import preprocessing
 
 # parameters
-num_input = 7
+num_input = 28
 num_output = 2
 
 
@@ -22,7 +22,9 @@ for i in range(10):
         line = [float(i) for i in line]
         #t.append(line[0])
         x_data_raw.append(line[1:num_input+1])
+        #x_data_raw.append(line[29:43])
         y_data_raw.append(line[-num_output:])
+    print(x_data_raw)
     t = range(len(x_data_raw))
     t = np.reshape(t,(-1,1))
     x_data_raw = np.reshape(x_data_raw, (-1, num_input))
