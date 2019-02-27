@@ -24,7 +24,6 @@ for i in range(10):
         x_data_raw.append(line[1:num_input+1])
         #x_data_raw.append(line[29:43])
         y_data_raw.append(line[-num_output:])
-    print(x_data_raw)
     t = range(len(x_data_raw))
     t = np.reshape(t,(-1,1))
     x_data_raw = np.reshape(x_data_raw, (-1, num_input))
