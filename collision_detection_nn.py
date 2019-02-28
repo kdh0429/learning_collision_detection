@@ -133,8 +133,8 @@ num_output = 2
 output_idx = 6
 
 # parameters
-learning_rate = 0.000002 #0.000001
-training_epochs = 1
+learning_rate = 0.000004 #0.000001
+training_epochs = 1500
 batch_size = 100
 total_batch = 1800
 drop_out = 1.0
