@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn import preprocessing
 
 # parameters
-num_input = 42
+num_input = 28
 num_output = 2
 
 

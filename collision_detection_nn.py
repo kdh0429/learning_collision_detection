@@ -128,13 +128,13 @@ class Model:
         return [self.hidden_layers, self.hidden_neurons]
 
 # input/output number
-num_input = 42
+num_input = 28
 num_output = 2
 output_idx = 6
 
 # parameters
-learning_rate = 0.000004 #0.000001
-training_epochs = 1500
+learning_rate = 0.000010 #0.000001
+training_epochs = 3000
 batch_size = 100
 total_batch = 1800
 drop_out = 1.0
