@@ -25,6 +25,7 @@ class Model:
             self.X_cont = tf.placeholder(tf.float32, shape=[None, num_input_cont], name = "input_cont")
             self.Y = tf.placeholder(tf.int64, shape=[None, num_output], name= "output")
             self.keep_prob = tf.placeholder(tf.float32, name="keep_prob")
+
             self.hidden_layers_dyna = 0
             self.hidden_layers_cont = 0
             self.hidden_neurons = 40
