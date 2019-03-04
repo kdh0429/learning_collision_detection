@@ -25,7 +25,7 @@ class Model:
             self.Y = tf.placeholder(tf.int64, shape=[None, num_output], name= "output")
             self.keep_prob = tf.placeholder(tf.float32, name="keep_prob")
             self.hidden_layers = 0
-            self.hidden_neurons = 40
+            self.hidden_neurons = 80
 
             # weights & bias for nn layers
             # http://stackoverflow.com/questions/33640581/how-to-do-xavier-initialization-on-tensorflow
