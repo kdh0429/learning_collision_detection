@@ -49,19 +49,19 @@ class Model:
             L3 = tf.nn.dropout(L3, keep_prob=self.keep_prob)
             self.hidden_layers += 1
 
-            # W4 = tf.get_variable("W4", shape=[hidden_neurons, hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
-            # b4 = tf.Variable(tf.random_normal([hidden_neurons]))
-            # L4 = tf.matmul(L3, W4) +b4
-            # L4 = tf.nn.sigmoid(L4)
-            # L4 = tf.nn.dropout(L4, keep_prob=self.keep_prob)
-            # self.hidden_layers += 1
+            W4 = tf.get_variable("W4", shape=[self.hidden_neurons, self.hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
+            b4 = tf.Variable(tf.random_normal([self.hidden_neurons]))
+            L4 = tf.matmul(L3, W4) +b4
+            L4 = tf.nn.sigmoid(L4)
+            L4 = tf.nn.dropout(L4, keep_prob=self.keep_prob)
+            self.hidden_layers += 1
 
-            # W5 = tf.get_variable("W5", shape=[hidden_neurons, hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
-            # b5 = tf.Variable(tf.random_normal([hidden_neurons]))
-            # L5 = tf.matmul(L4, W5) +b5
-            # L5 = tf.nn.sigmoid(L5)
-            # L5 = tf.nn.dropout(L5, keep_prob=self.keep_prob)
-            # self.hidden_layers += 1
+            W5 = tf.get_variable("W5", shape=[self.hidden_neurons, self.hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
+            b5 = tf.Variable(tf.random_normal([self.hidden_neurons]))
+            L5 = tf.matmul(L4, W5) +b5
+            L5 = tf.nn.sigmoid(L5)
+            L5 = tf.nn.dropout(L5, keep_prob=self.keep_prob)
+            self.hidden_layers += 1
 
             # W6 = tf.get_variable("W6", shape=[hidden_neurons, hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
             # b6 = tf.Variable(tf.random_normal([hidden_neurons]))
@@ -87,7 +87,7 @@ class Model:
 
             W9 = tf.get_variable("W9", shape=[self.hidden_neurons, num_output], initializer=tf.contrib.layers.xavier_initializer())
             b9 = tf.Variable(tf.random_normal([num_output]))
-            self.logits = tf.matmul(L3, W9) + b9
+            self.logits = tf.matmul(L5, W9) + b9
             self.hypothesis = tf.nn.softmax(self.logits)
             self.hypothesis = tf.identity(self.hypothesis, "hypothesis")
 
@@ -128,7 +128,7 @@ class Model:
         return [self.hidden_layers, self.hidden_neurons]
 
 # input/output number
-num_input = 28
+num_input = 42
 num_output = 2
 output_idx = 6
 
