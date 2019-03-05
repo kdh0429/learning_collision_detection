@@ -10,7 +10,7 @@ import os
 wandb_use = True
 start_time = time.time()
 if wandb_use == True:
-    wandb.init(project="collision_detection", tensorboard=False)
+    wandb.init(project="collision_detection_relu", tensorboard=False)
 
 class Model:
 
@@ -32,36 +32,36 @@ class Model:
             W1 = tf.get_variable("W1", shape=[num_input, self.hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
             b1 = tf.Variable(tf.random_normal([self.hidden_neurons]))
             L1 = tf.matmul(self.X, W1) +b1
-            L1 = tf.nn.sigmoid(L1)
+            L1 = tf.nn.relu(L1)
             L1 = tf.nn.dropout(L1, keep_prob=self.keep_prob)
 
             W2 = tf.get_variable("W2", shape=[self.hidden_neurons, self.hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
             b2 = tf.Variable(tf.random_normal([self.hidden_neurons]))
             L2 = tf.matmul(L1, W2) +b2
-            L2 = tf.nn.sigmoid(L2)
+            L2 = tf.nn.relu(L2)
             L2 = tf.nn.dropout(L2, keep_prob=self.keep_prob)
             self.hidden_layers += 1
 
             W3 = tf.get_variable("W3", shape=[self.hidden_neurons, self.hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
             b3 = tf.Variable(tf.random_normal([self.hidden_neurons]))
             L3 = tf.matmul(L2, W3) +b3
-            L3 = tf.nn.sigmoid(L3)
+            L3 = tf.nn.relu(L3)
             L3 = tf.nn.dropout(L3, keep_prob=self.keep_prob)
             self.hidden_layers += 1
 
-            W4 = tf.get_variable("W4", shape=[self.hidden_neurons, self.hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
-            b4 = tf.Variable(tf.random_normal([self.hidden_neurons]))
-            L4 = tf.matmul(L3, W4) +b4
-            L4 = tf.nn.sigmoid(L4)
-            L4 = tf.nn.dropout(L4, keep_prob=self.keep_prob)
-            self.hidden_layers += 1
+            #W4 = tf.get_variable("W4", shape=[self.hidden_neurons, self.hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
+            #b4 = tf.Variable(tf.random_normal([self.hidden_neurons]))
+            #L4 = tf.matmul(L3, W4) +b4
+            #L4 = tf.nn.sigmoid(L4)
+            #L4 = tf.nn.dropout(L4, keep_prob=self.keep_prob)
+            #self.hidden_layers += 1
 
-            W5 = tf.get_variable("W5", shape=[self.hidden_neurons, self.hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
-            b5 = tf.Variable(tf.random_normal([self.hidden_neurons]))
-            L5 = tf.matmul(L4, W5) +b5
-            L5 = tf.nn.sigmoid(L5)
-            L5 = tf.nn.dropout(L5, keep_prob=self.keep_prob)
-            self.hidden_layers += 1
+            #W5 = tf.get_variable("W5", shape=[self.hidden_neurons, self.hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
+            #b5 = tf.Variable(tf.random_normal([self.hidden_neurons]))
+            #L5 = tf.matmul(L4, W5) +b5
+            #L5 = tf.nn.sigmoid(L5)
+            #L5 = tf.nn.dropout(L5, keep_prob=self.keep_prob)
+            #self.hidden_layers += 1
 
             # W6 = tf.get_variable("W6", shape=[hidden_neurons, hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
             # b6 = tf.Variable(tf.random_normal([hidden_neurons]))
@@ -87,7 +87,7 @@ class Model:
 
             W9 = tf.get_variable("W9", shape=[self.hidden_neurons, num_output], initializer=tf.contrib.layers.xavier_initializer())
             b9 = tf.Variable(tf.random_normal([num_output]))
-            self.logits = tf.matmul(L5, W9) + b9
+            self.logits = tf.matmul(L3, W9) + b9
             self.hypothesis = tf.nn.softmax(self.logits)
             self.hypothesis = tf.identity(self.hypothesis, "hypothesis")
 
