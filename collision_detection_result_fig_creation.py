@@ -42,14 +42,15 @@ for i in range(10):
 
     hypo = sess.run(hypothesis, feed_dict={x: x_data_raw, keep_prob: 1.0})
 
-    mean_error_1 = np.mean(np.abs(y_data_raw[:,0]-hypo[:,0]))
-    mean_error_2 = np.mean(np.abs(y_data_raw[:,1]-hypo[:,1]))
-    mean_error_3 = np.mean(np.abs(y_data_raw[:,2]-hypo[:,2]))
-    mean_error_4 = np.mean(np.abs(y_data_raw[:,3]-hypo[:,3]))
-    mean_error_5 = np.mean(np.abs(y_data_raw[:,4]-hypo[:,4]))
-    mean_error_6 = np.mean(np.abs(y_data_raw[:,5]-hypo[:,5]))
-    mean_error_7 = np.mean(np.abs(y_data_raw[:,6]-hypo[:,6]))
-    print("Accuracy : %f" % mean_error_1)
+    mean_error = np.zeros(7)
+    mean_error[0] = np.mean(np.abs(y_data_raw[:,0]-hypo[:,0]))
+    mean_error[1] = np.mean(np.abs(y_data_raw[:,1]-hypo[:,1]))
+    mean_error[2] = np.mean(np.abs(y_data_raw[:,2]-hypo[:,2]))
+    mean_error[3] = np.mean(np.abs(y_data_raw[:,3]-hypo[:,3]))
+    mean_error[4] = np.mean(np.abs(y_data_raw[:,4]-hypo[:,4]))
+    mean_error[5] = np.mean(np.abs(y_data_raw[:,5]-hypo[:,5]))
+    mean_error[6] = np.mean(np.abs(y_data_raw[:,6]-hypo[:,6]))
+    print("Accuracy : %f" % np.mean(mean_error))
 
     for j in range(7):
         plt.subplot(7,1,j+1)
