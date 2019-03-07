@@ -128,7 +128,7 @@ class Model:
         return [self.hidden_layers, self.hidden_neurons]
 
 # input/output number
-num_input = 42
+num_input = 21
 num_output = 2
 output_idx = 6
 
