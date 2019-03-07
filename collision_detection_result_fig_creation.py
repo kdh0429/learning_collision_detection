@@ -17,10 +17,11 @@ for i in range(10):
     t = []
     x_data_raw = []
     y_data_raw = []
-
+    not_collision_num = 0
     for line in rdr:
         line = [float(i) for i in line]
-        #if(line[84] == 0):
+        if line[84] == 0:
+            not_collision_num += 1
         x_data_raw.append(line[1:num_input+1])
         y_data_raw.append(line[num_input+1+7:num_input+1+7+num_output])
     t = range(len(x_data_raw))
@@ -42,20 +43,30 @@ for i in range(10):
 
     hypo = sess.run(hypothesis, feed_dict={x: x_data_raw, keep_prob: 1.0})
 
-    mean_error = np.zeros(7)
-    mean_error[0] = np.mean(np.abs(y_data_raw[:,0]-hypo[:,0]))
-    mean_error[1] = np.mean(np.abs(y_data_raw[:,1]-hypo[:,1]))
-    mean_error[2] = np.mean(np.abs(y_data_raw[:,2]-hypo[:,2]))
-    mean_error[3] = np.mean(np.abs(y_data_raw[:,3]-hypo[:,3]))
-    mean_error[4] = np.mean(np.abs(y_data_raw[:,4]-hypo[:,4]))
-    mean_error[5] = np.mean(np.abs(y_data_raw[:,5]-hypo[:,5]))
-    mean_error[6] = np.mean(np.abs(y_data_raw[:,6]-hypo[:,6]))
-    print("Accuracy : %f" % np.mean(mean_error))
+    mean_error_not_collision = np.zeros(7)
+    mean_error_not_collision[0] = np.mean(np.abs(y_data_raw[0:not_collision_num,0]-hypo[0:not_collision_num,0]))
+    mean_error_not_collision[1] = np.mean(np.abs(y_data_raw[0:not_collision_num,1]-hypo[0:not_collision_num,1]))
+    mean_error_not_collision[2] = np.mean(np.abs(y_data_raw[0:not_collision_num,2]-hypo[0:not_collision_num,2]))
+    mean_error_not_collision[3] = np.mean(np.abs(y_data_raw[0:not_collision_num,3]-hypo[0:not_collision_num,3]))
+    mean_error_not_collision[4] = np.mean(np.abs(y_data_raw[0:not_collision_num,4]-hypo[0:not_collision_num,4]))
+    mean_error_not_collision[5] = np.mean(np.abs(y_data_raw[0:not_collision_num,5]-hypo[0:not_collision_num,5]))
+    mean_error_not_collision[6] = np.mean(np.abs(y_data_raw[0:not_collision_num,6]-hypo[0:not_collision_num,6]))
+
+    mean_error_collision = np.zeros(7)
+    mean_error_collision[0] = np.mean(np.abs(y_data_raw[not_collision_num:,0]-hypo[not_collision_num:,0]))
+    mean_error_collision[1] = np.mean(np.abs(y_data_raw[not_collision_num:,1]-hypo[not_collision_num:,1]))
+    mean_error_collision[2] = np.mean(np.abs(y_data_raw[not_collision_num:,2]-hypo[not_collision_num:,2]))
+    mean_error_collision[3] = np.mean(np.abs(y_data_raw[not_collision_num:,3]-hypo[not_collision_num:,3]))
+    mean_error_collision[4] = np.mean(np.abs(y_data_raw[not_collision_num:,4]-hypo[not_collision_num:,4]))
+    mean_error_collision[5] = np.mean(np.abs(y_data_raw[not_collision_num:,5]-hypo[not_collision_num:,5]))
+    mean_error_collision[6] = np.mean(np.abs(y_data_raw[not_collision_num:,6]-hypo[not_collision_num:,6]))
+    print("Not Collision Error: %f" % np.mean(mean_error_not_collision))
+    print("Collision Error: %f" % np.mean(mean_error_collision))
 
     for j in range(7):
         plt.subplot(7,1,j+1)
         plt.plot(t,y_data_raw[:,j], color='r', label='real')
-        plt.plot(t,hypo[:,0], color='b', label='prediction')
+        plt.plot(t,hypo[:,j], color='b', label='prediction')
         plt.xlabel('time')
         plt.ylabel('qdot')
         plt.legend()
