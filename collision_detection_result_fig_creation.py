@@ -25,7 +25,7 @@ for i in range(10):
         x_dyna_data_raw.append(line[1:num_input_dyna+1])
         x_cont_data_raw.append(line[num_input_dyna+1:num_input_dyna+num_input_cont+1])
         y_data_raw.append(line[-num_output:])
-    t = range(len(x_dyna_data_raw)+len(x_cont_data_raw))
+    t = range(len(y_data_raw))
     t = np.reshape(t,(-1,1))
     x_dyna_data_raw = np.reshape(x_dyna_data_raw, (-1, num_input_dyna))
     x_cont_data_raw = np.reshape(x_cont_data_raw, (-1, num_input_cont))

@@ -60,7 +60,7 @@ class Model:
             self.hidden_layers_dyna += 1
 
             W5_dyna = tf.get_variable("W5_dyna", shape=[self.hidden_neurons, 1], initializer=tf.contrib.layers.xavier_initializer())
-            b5_dyna = tf.Variable(tf.random_normal([self.hidden_neurons]))
+            b5_dyna = tf.Variable(tf.random_normal([1]))
             L5_dyna = tf.matmul(L4_dyna, W5_dyna) +b5_dyna
             L5_dyna = tf.nn.sigmoid(L5_dyna)
             L5_dyna = tf.nn.dropout(L5_dyna, keep_prob=self.keep_prob)
@@ -80,13 +80,13 @@ class Model:
             self.hidden_layers_cont += 1
 
             W3_cont = tf.get_variable("W3_cont", shape=[self.hidden_neurons, 1], initializer=tf.contrib.layers.xavier_initializer())
-            b3_cont = tf.Variable(tf.random_normal([self.hidden_neurons]))
+            b3_cont = tf.Variable(tf.random_normal([1]))
             L3_cont = tf.matmul(L2_cont, W3_cont) +b3_cont
             L3_cont = tf.nn.sigmoid(L3_cont)
             L3_cont = tf.nn.dropout(L3_cont, keep_prob=self.keep_prob)
             self.hidden_layers_cont += 1
-
-            L_last = tf.stack([L5_dyna, L3_cont])
+           
+            L_last = tf.concat([L5_dyna, L3_cont], 1)
             W_last = tf.get_variable("W_last", shape=[2, num_output], initializer=tf.contrib.layers.xavier_initializer())
             b_last = tf.Variable(tf.random_normal([num_output]))
             self.logits = tf.matmul(L_last, W_last) + b_last
@@ -94,7 +94,7 @@ class Model:
             self.hypothesis = tf.identity(self.hypothesis, "hypothesis")
 
             # define cost/loss & optimizer
-            self.l2_reg = 0 #tf.nn.l2_loss(W1) + tf.nn.l2_loss(W2) + tf.nn.l2_loss(W3) + tf.nn.l2_loss(W4) + tf.nn.l2_loss(W5) + tf.nn.l2_loss(W6) + tf.nn.l2_loss(W7)
+            self.l2_reg = tf.nn.l2_loss(W1_dyna) #+ tf.nn.l2_loss(W2) + tf.nn.l2_loss(W3) + tf.nn.l2_loss(W4) + tf.nn.l2_loss(W5) + tf.nn.l2_loss(W6) + tf.nn.l2_loss(W7)
             self.l2_reg = regul_factor* self.l2_reg
             self.cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.logits, labels=self.Y))
             #self.cost = tf.reduce_mean(tf.reduce_mean(tf.square(self.hypothesis - self.Y)))
@@ -125,7 +125,7 @@ class Model:
 
             if i == num:
                 break
-        return [np.asarray(np.reshape(x_dyna_batch, (-1, x_dyna_batch))), np.asarray(np.reshape(x_cont_batch, (-1, num_input_cont))), np.asarray(np.reshape(y_batch,(-1,num_output)))]
+        return [np.asarray(np.reshape(x_dyna_batch, (-1, num_input_dyna))), np.asarray(np.reshape(x_cont_batch, (-1, num_input_cont))), np.asarray(np.reshape(y_batch,(-1,num_output)))]
     def get_hidden_number(self):
         return [self.hidden_layers_dyna, self.hidden_layers_cont, self.hidden_neurons]
 
@@ -187,7 +187,7 @@ if wandb_use == True:
     wandb.config.learning_rate = learning_rate
     wandb.config.drop_out = drop_out
     wandb.config.num_input_dyna = num_input_dyna
-    wandb.config.num_input_dyna = num_input_cont
+    wandb.config.num_input_cont = num_input_cont
     wandb.config.num_output = num_output
     wandb.config.total_batch = total_batch
     wandb.config.activation_function = "Sigmoid"
