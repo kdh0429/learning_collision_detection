@@ -5,8 +5,10 @@ import matplotlib.pyplot as plt
 from sklearn import preprocessing
 
 # parameters
-num_input = 21
-num_output = 7
+num_input_1st = 21
+num_output_1st = 7
+num_input_2nd = num_output_1st
+num_output_2nd = 2
 
 
 for i in range(10):
@@ -15,19 +17,25 @@ for i in range(10):
     f = open(path, 'r', encoding='utf-8')
     rdr = csv.reader(f)
     t = []
-    x_data_raw = []
-    y_data_raw = []
+    x_data_raw_1st = []
+    y_data_raw_1st = []
+    x_data_raw_2nd = []
+    y_data_raw_2nd = []
     not_collision_num = 0
     for line in rdr:
         line = [float(i) for i in line]
         if line[84] == 0:
             not_collision_num += 1
-        x_data_raw.append(line[1:num_input+1])
-        y_data_raw.append(line[num_input+1+7:num_input+1+7+num_output])
-    t = range(len(x_data_raw))
+        x_data_raw_1st.append(line[1:num_input_1st+1])
+        y_data_raw_1st.append(line[num_input_1st+1+7:num_input_1st+1+7+num_output_1st])
+        x_data_raw_2nd.append(line[num_input_1st+1+7:num_input_1st+1+7+num_output_1st])
+        y_data_raw_2nd.append(line[-num_output_2nd:])
+    t = range(len(x_data_raw_1st))
     t = np.reshape(t,(-1,1))
-    x_data_raw = np.reshape(x_data_raw, (-1, num_input))
-    y_data_raw = np.reshape(y_data_raw, (-1, num_output))
+    x_data_raw_1st = np.reshape(x_data_raw_1st, (-1, num_input_1st))
+    y_data_raw_1st = np.reshape(y_data_raw_1st, (-1, num_output_1st))
+    x_data_raw_2nd = np.reshape(x_data_raw_2nd, (-1, num_input_2nd))
+    y_data_raw_2nd = np.reshape(y_data_raw_2nd, (-1, num_output_2nd))
 
     tf.reset_default_graph()
     sess = tf.Session()
@@ -36,41 +44,30 @@ for i in range(10):
     new_saver.restore(sess, 'model/model.ckpt')
 
     graph = tf.get_default_graph()
-    x = graph.get_tensor_by_name("m1/input:0")
-    y = graph.get_tensor_by_name("m1/output:0")
-    keep_prob = graph.get_tensor_by_name("m1/keep_prob:0")
-    hypothesis = graph.get_tensor_by_name("m1/hypothesis:0")
 
-    hypo = sess.run(hypothesis, feed_dict={x: x_data_raw, keep_prob: 1.0})
+    x_1st = graph.get_tensor_by_name("m1/input_1st:0")
+    hypo_1st = graph.get_tensor_by_name("m1/hypothesis_1st:0")
+    keep_prob_1st = graph.get_tensor_by_name("m1/keep_prob_1st:0")
+    x_2nd = graph.get_tensor_by_name("m1_1/input:0")
+    hypo_2nd = graph.get_tensor_by_name("m1_1/hypothesis_2nd:0")
+    keep_prob_2nd = graph.get_tensor_by_name("m1_1/keep_prob_2nd:0")
 
-    mean_error_not_collision = np.zeros(7)
-    mean_error_not_collision[0] = np.mean(np.abs(y_data_raw[0:not_collision_num,0]-hypo[0:not_collision_num,0]))
-    mean_error_not_collision[1] = np.mean(np.abs(y_data_raw[0:not_collision_num,1]-hypo[0:not_collision_num,1]))
-    mean_error_not_collision[2] = np.mean(np.abs(y_data_raw[0:not_collision_num,2]-hypo[0:not_collision_num,2]))
-    mean_error_not_collision[3] = np.mean(np.abs(y_data_raw[0:not_collision_num,3]-hypo[0:not_collision_num,3]))
-    mean_error_not_collision[4] = np.mean(np.abs(y_data_raw[0:not_collision_num,4]-hypo[0:not_collision_num,4]))
-    mean_error_not_collision[5] = np.mean(np.abs(y_data_raw[0:not_collision_num,5]-hypo[0:not_collision_num,5]))
-    mean_error_not_collision[6] = np.mean(np.abs(y_data_raw[0:not_collision_num,6]-hypo[0:not_collision_num,6]))
+    hypo1st = sess.run(hypo_1st, feed_dict={x_1st: x_data_raw_1st, keep_prob_1st: 1.0})
+    resi = x_data_raw_2nd - hypo1st
+    hypo2nd = sess.run(hypo_2nd, feed_dict={x_2nd: resi, keep_prob_2nd : 1.0})
 
-    mean_error_collision = np.zeros(7)
-    mean_error_collision[0] = np.mean(np.abs(y_data_raw[not_collision_num:,0]-hypo[not_collision_num:,0]))
-    mean_error_collision[1] = np.mean(np.abs(y_data_raw[not_collision_num:,1]-hypo[not_collision_num:,1]))
-    mean_error_collision[2] = np.mean(np.abs(y_data_raw[not_collision_num:,2]-hypo[not_collision_num:,2]))
-    mean_error_collision[3] = np.mean(np.abs(y_data_raw[not_collision_num:,3]-hypo[not_collision_num:,3]))
-    mean_error_collision[4] = np.mean(np.abs(y_data_raw[not_collision_num:,4]-hypo[not_collision_num:,4]))
-    mean_error_collision[5] = np.mean(np.abs(y_data_raw[not_collision_num:,5]-hypo[not_collision_num:,5]))
-    mean_error_collision[6] = np.mean(np.abs(y_data_raw[not_collision_num:,6]-hypo[not_collision_num:,6]))
-    print("Not Collision Error: %f" % np.mean(mean_error_not_collision))
-    print("Collision Error: %f" % np.mean(mean_error_collision))
+    prediction = np.argmax(hypo2nd, 1)
+    correct_prediction = np.equal(prediction, np.argmax(y_data_raw_2nd, 1))
+    accuracy = np.mean(correct_prediction)
 
-    for j in range(7):
-        plt.subplot(7,1,j+1)
-        plt.plot(t,y_data_raw[:,j], color='r', label='real')
-        plt.plot(t,hypo[:,j], color='b', label='prediction')
-        plt.xlabel('time')
-        plt.ylabel('qdot')
-        plt.legend()
+    print("Accuracy : %f" % accuracy)
 
+
+    plt.plot(t,y_data_raw_2nd[:,0], color='r', marker="o", label='real')
+    plt.plot(t,hypo2nd[:,0], color='b',marker="x", label='prediction')
+    plt.xlabel('time')
+    plt.ylabel('Collision Probability')
+    plt.legend()
     plt.savefig('Figure_' + str(i)+'.png')
     plt.clf()
     #plt.show()

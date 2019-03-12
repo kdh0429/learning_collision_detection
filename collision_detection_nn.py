@@ -17,119 +17,170 @@ class Model:
     def __init__(self, sess, name):
         self.sess = sess
         self.name = name
-        self._build_net()
+        self._build_1st_network()
+        self._build_2nd_network()
 
-    def _build_net(self):
+    def _build_1st_network(self):
         with tf.variable_scope(self.name):
-            self.X = tf.placeholder(tf.float32, shape=[None, num_input], name = "input")
-            self.Y = tf.placeholder(tf.float32, shape=[None, num_output], name= "output")
-            self.keep_prob = tf.placeholder(tf.float32, name="keep_prob")
-            self.hidden_layers = 0
-            self.hidden_neurons = 40
+            self.X_1st = tf.placeholder(tf.float32, shape=[None, num_input_1st], name = "input_1st")
+            self.Y_1st = tf.placeholder(tf.float32, shape=[None, num_output_1st], name= "output_1st")
+            self.keep_prob_1st = tf.placeholder(tf.float32, name="keep_prob_1st")
+            self.hidden_layers_1st = 0
+            self.hidden_neurons_1st = 40
 
             # weights & bias for nn layers
             # http://stackoverflow.com/questions/33640581/how-to-do-xavier-initialization-on-tensorflow
-            W1 = tf.get_variable("W1", shape=[num_input, self.hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
-            b1 = tf.Variable(tf.random_normal([self.hidden_neurons]))
-            L1 = tf.matmul(self.X, W1) +b1
-            L1 = tf.nn.relu(L1)
-            L1 = tf.nn.dropout(L1, keep_prob=self.keep_prob)
+            W1_1st = tf.get_variable("W1_1st", shape=[num_input_1st, self.hidden_neurons_1st], initializer=tf.contrib.layers.xavier_initializer())
+            b1_1st = tf.Variable(tf.random_normal([self.hidden_neurons_1st]))
+            L1_1st = tf.matmul(self.X_1st, W1_1st) +b1_1st
+            L1_1st = tf.nn.relu(L1_1st)
+            L1_1st = tf.nn.dropout(L1_1st, keep_prob=self.keep_prob_1st)
 
-            W2 = tf.get_variable("W2", shape=[self.hidden_neurons, self.hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
-            b2 = tf.Variable(tf.random_normal([self.hidden_neurons]))
-            L2 = tf.matmul(L1, W2) +b2
-            L2 = tf.nn.relu(L2)
-            L2 = tf.nn.dropout(L2, keep_prob=self.keep_prob)
-            self.hidden_layers += 1
+            W2_1st = tf.get_variable("W2_1st", shape=[self.hidden_neurons_1st, self.hidden_neurons_1st], initializer=tf.contrib.layers.xavier_initializer())
+            b2_1st = tf.Variable(tf.random_normal([self.hidden_neurons_1st]))
+            L2_1st = tf.matmul(L1_1st, W2_1st) +b2_1st
+            L2_1st = tf.nn.relu(L2_1st)
+            L2_1st = tf.nn.dropout(L2_1st, keep_prob=self.keep_prob_1st)
+            self.hidden_layers_1st += 1
 
-            W3 = tf.get_variable("W3", shape=[self.hidden_neurons, self.hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
-            b3 = tf.Variable(tf.random_normal([self.hidden_neurons]))
-            L3 = tf.matmul(L2, W3) +b3
-            L3 = tf.nn.relu(L3)
-            L3 = tf.nn.dropout(L3, keep_prob=self.keep_prob)
-            self.hidden_layers += 1
+            W3_1st = tf.get_variable("W3_1st", shape=[self.hidden_neurons_1st, self.hidden_neurons_1st], initializer=tf.contrib.layers.xavier_initializer())
+            b3_1st = tf.Variable(tf.random_normal([self.hidden_neurons_1st]))
+            L3_1st = tf.matmul(L2_1st, W3_1st) +b3_1st
+            L3_1st = tf.nn.relu(L3_1st)
+            L3_1st = tf.nn.dropout(L3_1st, keep_prob=self.keep_prob_1st)
+            self.hidden_layers_1st += 1
 
-            W4 = tf.get_variable("W4", shape=[self.hidden_neurons, self.hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
-            b4 = tf.Variable(tf.random_normal([self.hidden_neurons]))
-            L4 = tf.matmul(L3, W4) +b4
-            L4 = tf.nn.relu(L4)
-            L4 = tf.nn.dropout(L4, keep_prob=self.keep_prob)
-            self.hidden_layers += 1
+            W4_1st = tf.get_variable("W4_1st", shape=[self.hidden_neurons_1st, self.hidden_neurons_1st], initializer=tf.contrib.layers.xavier_initializer())
+            b4_1st = tf.Variable(tf.random_normal([self.hidden_neurons_1st]))
+            L4_1st = tf.matmul(L3_1st, W4_1st) +b4_1st
+            L4_1st = tf.nn.relu(L4_1st)
+            L4_1st = tf.nn.dropout(L4_1st, keep_prob=self.keep_prob_1st)
+            self.hidden_layers_1st += 1
 
-            #W5 = tf.get_variable("W5", shape=[self.hidden_neurons, self.hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
-            #b5 = tf.Variable(tf.random_normal([self.hidden_neurons]))
-            #L5 = tf.matmul(L4, W5) +b5
-            #L5 = tf.nn.sigmoid(L5)
-            #L5 = tf.nn.dropout(L5, keep_prob=self.keep_prob)
-            #self.hidden_layers += 1
-
-            # W6 = tf.get_variable("W6", shape=[hidden_neurons, hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
-            # b6 = tf.Variable(tf.random_normal([hidden_neurons]))
-            # L6 = tf.matmul(L5, W6) +b6
-            # L6 = tf.nn.sigmoid(L6)
-            # L6 = tf.nn.dropout(L6, keep_prob=self.keep_prob)
-            # self.hidden_layers += 1
-
-            # W7 = tf.get_variable("W7", shape=[hidden_neurons, hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
-            # b7 = tf.Variable(tf.random_normal([hidden_neurons]))
-            # L7 = tf.matmul(L6, W7) +b7
-            # L7 = tf.nn.sigmoid(L7)
-            # L7 = tf.nn.dropout(L7, keep_prob=self.keep_prob)
-            # self.hidden_layers += 1
-
-            # W8 = tf.get_variable("W8", shape=[hidden_neurons, hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
-            # b8 = tf.Variable(tf.random_normal([hidden_neurons]))
-            # L8 = tf.matmul(L7, W8) +b8
-            # #L8 = tf.nn.relu(L8)
-            # L8 = tf.nn.sigmoid(L8)
-            # L8 = tf.nn.dropout(L8, keep_prob=self.keep_prob)
-            # self.hidden_layers += 1
-
-            W9 = tf.get_variable("W9", shape=[self.hidden_neurons, num_output], initializer=tf.contrib.layers.xavier_initializer())
-            b9 = tf.Variable(tf.random_normal([num_output]))
-            self.hypothesis = tf.matmul(L4,W9)+b9
-            self.hypothesis = tf.identity(self.hypothesis, "hypothesis")
+            W5_1st = tf.get_variable("W5_1st", shape=[self.hidden_neurons_1st, num_output_1st], initializer=tf.contrib.layers.xavier_initializer())
+            b5_1st = tf.Variable(tf.random_normal([num_output_1st]))
+            self.hypothesis_1st = tf.matmul(L4_1st, W5_1st)+b5_1st
+            self.hypothesis_1st = tf.identity(self.hypothesis_1st, "hypothesis_1st")
 
             # define cost/loss & optimizer
-            self.l2_reg = tf.nn.l2_loss(W1)# + tf.nn.l2_loss(W2) + tf.nn.l2_loss(W3) + tf.nn.l2_loss(W4) + tf.nn.l2_loss(W5) + tf.nn.l2_loss(W6) + tf.nn.l2_loss(W7)
-            self.l2_reg = regul_factor* self.l2_reg
-            self.cost = tf.reduce_mean(tf.reduce_mean(tf.square(self.hypothesis - self.Y)))
-            self.optimizer = tf.train.AdamOptimizer(learning_rate= learning_rate).minimize(self.cost + self.l2_reg)
+            self.cost_1st = tf.reduce_mean(tf.reduce_mean(tf.square(self.hypothesis_1st - self.Y_1st)))
+            self.optimizer_1st = tf.train.AdamOptimizer(learning_rate= learning_rate_1st).minimize(self.cost_1st)
         
-        self.mean_error = tf.reduce_mean(tf.abs(self.Y-self.hypothesis))
-        self.mean_error = tf.identity(self.mean_error, "mean_error")
+        self.mean_error_1st = tf.reduce_mean(tf.abs(self.Y_1st-self.hypothesis_1st))
+        self.mean_error_1st = tf.identity(self.mean_error_1st, "mean_error_1st")
 
-    def get_mean_error_hypothesis(self, x_test, y_test, keep_prop=1.0):
-        return self.sess.run([self.mean_error, self.hypothesis, self.X, self.Y, self.l2_reg], feed_dict={self.X: x_test, self.Y: y_test, self.keep_prob: keep_prop})
+    def _build_2nd_network(self):
+        with tf.variable_scope(self.name):
+            self.X_2nd = tf.placeholder(tf.float32, shape=[None, num_input_2nd], name = "input")
+            self.Y_2nd = tf.placeholder(tf.float32, shape=[None, num_output_2nd], name= "output")
+            self.keep_prob_2nd = tf.placeholder(tf.float32, name="keep_prob_2nd")
+            self.hidden_layers_2nd = 0
+            self.hidden_neurons_2nd = 40
 
-    def train(self, x_data, y_data, keep_prop=1.0):
-        return self.sess.run([self.mean_error, self.l2_reg, self.optimizer], feed_dict={
-            self.X: x_data, self.Y: y_data, self.keep_prob: keep_prop})
+            # weights & bias for nn layers
+            # http://stackoverflow.com/questions/33640581/how-to-do-xavier-initialization-on-tensorflow
+            W1_2nd = tf.get_variable("W1_2nd", shape=[num_input_2nd, self.hidden_neurons_2nd], initializer=tf.contrib.layers.xavier_initializer())
+            b1_2nd = tf.Variable(tf.random_normal([self.hidden_neurons_2nd]))
+            L1_2nd = tf.matmul(self.X_2nd, W1_2nd) +b1_2nd
+            L1_2nd = tf.nn.relu(L1_2nd)
+            L1_2nd = tf.nn.dropout(L1_2nd, keep_prob=self.keep_prob_2nd)
 
-    def next_batch(self, num, data):
-        x_batch = []
-        y_batch = []
+            W2_2nd = tf.get_variable("W2_2nd", shape=[self.hidden_neurons_2nd, self.hidden_neurons_2nd], initializer=tf.contrib.layers.xavier_initializer())
+            b2_2nd = tf.Variable(tf.random_normal([self.hidden_neurons_2nd]))
+            L2_2nd = tf.matmul(L1_2nd, W2_2nd) +b2_2nd
+            L2_2nd = tf.nn.relu(L2_2nd)
+            L2_2nd = tf.nn.dropout(L2_2nd, keep_prob=self.keep_prob_2nd)
+            self.hidden_layers_2nd += 1
+
+            W3_2nd = tf.get_variable("W3_2nd", shape=[self.hidden_neurons_2nd, self.hidden_neurons_2nd], initializer=tf.contrib.layers.xavier_initializer())
+            b3_2nd = tf.Variable(tf.random_normal([self.hidden_neurons_2nd]))
+            L3_2nd = tf.matmul(L2_2nd, W3_2nd) +b3_2nd
+            L3_2nd = tf.nn.relu(L3_2nd)
+            L3_2nd = tf.nn.dropout(L3_2nd, keep_prob=self.keep_prob_2nd)
+            self.hidden_layers_2nd += 1
+
+            W4_2nd = tf.get_variable("W4_2nd", shape=[self.hidden_neurons_2nd, self.hidden_neurons_2nd], initializer=tf.contrib.layers.xavier_initializer())
+            b4_2nd = tf.Variable(tf.random_normal([self.hidden_neurons_2nd]))
+            L4_2nd = tf.matmul(L3_2nd, W4_2nd) +b4_2nd
+            L4_2nd = tf.nn.relu(L4_2nd)
+            L4_2nd = tf.nn.dropout(L4_2nd, keep_prob=self.keep_prob_2nd)
+            self.hidden_layers_2nd += 1
+
+            W5_2nd = tf.get_variable("W5_2nd", shape=[self.hidden_neurons_2nd, num_output_2nd], initializer=tf.contrib.layers.xavier_initializer())
+            b5_2nd = tf.Variable(tf.random_normal([num_output_2nd]))
+            self.logits = tf.matmul(L4_2nd,W5_2nd)+b5_2nd
+            self.hypothesis_2nd = tf.nn.softmax(self.logits)
+            self.hypothesis_2nd = tf.identity(self.hypothesis_2nd, "hypothesis_2nd")
+
+            # define cost/loss & optimizer
+            self.cost_2nd = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.logits, labels= self.Y_2nd))
+            self.optimizer_2nd = tf.train.AdamOptimizer(learning_rate= learning_rate_2nd).minimize(self.cost_2nd)
+
+        self.prediction = tf.argmax(self.hypothesis_2nd, 1)
+        self.correct_prediction = tf.equal(self.prediction, tf.argmax(self.Y_2nd, 1))
+        self.accuracy = tf.reduce_mean(tf.cast(self.correct_prediction, tf.float32))
+
+    def get_hypothesis_1st(self, x_test, keep_prop=1.0):
+        return self.sess.run(self.hypothesis_1st, feed_dict={self.X_1st: x_test, self.keep_prob_1st: keep_prop})
+    def get_mean_error_hypothesis_1st(self, x_test, y_test, keep_prop=1.0):
+        return self.sess.run([self.mean_error_1st, self.hypothesis_1st, self.X_1st, self.Y_1st], feed_dict={self.X_1st: x_test, self.Y_1st: y_test, self.keep_prob_1st: keep_prop})
+    def get_mean_error_hypothesis_2nd(self, x_test, y_test, keep_prop=1.0):
+        return self.sess.run([self.accuracy, self.hypothesis_2nd, self.X_2nd, self.Y_2nd], feed_dict={self.X_2nd: x_test, self.Y_2nd: y_test, self.keep_prob_2nd: keep_prop})
+
+    def train_1st(self, x_data, y_data, keep_prop=1.0):
+        return self.sess.run([self.mean_error_1st, self.optimizer_1st], feed_dict={
+            self.X_1st: x_data, self.Y_1st: y_data, self.keep_prob_1st: keep_prop})
+    def train_2nd(self, x_data, y_data, keep_prop=1.0):
+        return self.sess.run([self.accuracy, self.optimizer_2nd], feed_dict={
+            self.X_2nd: x_data, self.Y_2nd: y_data, self.keep_prob_2nd: keep_prop})
+
+    def next_batch_1st(self, num, data):
+        x_batch_1st_network = []
+        y_batch_1st_network = []
         i = 0
         for line in data:
             line = [float(i) for i in line]
             if(line[84] == 0):
-                x_batch.append(line[1:num_input+1])
-                y_batch.append(line[num_input+1+7:num_input+1+7+num_output])
+                x_batch_1st_network.append(line[1:num_input_1st+1])
+                y_batch_1st_network.append(line[num_input_1st+1+7:num_input_1st+1+7+num_output_1st])
             i = i+1
 
             if i == num:
                 break
-        return [np.asarray(np.reshape(x_batch, (-1, num_input))), np.asarray(np.reshape(y_batch,(-1,num_output))), ]
+        return [np.asarray(np.reshape(x_batch_1st_network, (-1, num_input_1st))), np.asarray(np.reshape(y_batch_1st_network,(-1,num_output_1st)))]
+    
+    def next_batch_2nd(self, num, data):
+        x_batch_1st_network = []
+        y_batch_1st_network = []
+        x_batch_2nd_network = []
+        y_batch_2nd_network = []
+        i = 0
+        for line in data:
+            line = [float(i) for i in line]
+            x_batch_1st_network.append(line[1:num_input_1st+1])
+            y_batch_1st_network.append(line[num_input_1st+1+7:num_input_1st+1+7+num_output_1st])
+            x_batch_2nd_network.append(line[num_input_1st+1+7:num_input_1st+1+7+num_output_1st])
+            y_batch_2nd_network.append(line[-num_output_2nd:])
+            i = i+1
+
+            if i == num:
+                break
+        return [np.asarray(np.reshape(x_batch_1st_network, (-1, num_input_1st))), np.asarray(np.reshape(y_batch_1st_network,(-1,num_output_1st))), \
+                np.asarray(np.reshape(x_batch_2nd_network, (-1, num_input_2nd))), np.asarray(np.reshape(y_batch_2nd_network,(-1,num_output_2nd)))]
+
     def get_hidden_number(self):
-        return [self.hidden_layers, self.hidden_neurons]
+        return [self.hidden_layers_1st, self.hidden_neurons_1st, self.hidden_layers_2nd, self.hidden_neurons_2nd]
 
 # input/output number
-num_input = 21
-num_output = 7
+num_input_1st = 21
+num_output_1st = 7
+num_input_2nd = num_output_1st
+num_output_2nd = 2
 
 # parameters
-learning_rate = 0.00010 #0.000001
-training_epochs = 1000
+learning_rate_1st = 0.00001 #0.000001
+learning_rate_2nd = 0.00001
+training_epochs = 3000
 batch_size = 150
 total_batch = 1200
 drop_out = 1.0
@@ -138,31 +189,56 @@ regul_factor = 0.00000
 # loading testing data
 f_test = open('testing_data_.csv', 'r', encoding='utf-8')
 rdr_test = csv.reader(f_test)
-x_data_test = []
-y_data_test = []
+x_data_test_1st = []
+y_data_test_1st = []
+x_data_test_1st_all =[]
+y_data_test_1st_all=[]
+x_data_test_2nd = []
+y_data_test_2nd = []
 
 for line in rdr_test:
     line = [float(i) for i in line]
     if line[84]==0 :
-        x_data_test.append(line[1:num_input+1])
-        y_data_test.append(line[num_input+1+7:num_input+1+7+num_output])
+        x_data_test_1st.append(line[1:num_input_1st+1])
+        y_data_test_1st.append(line[num_input_1st+1+7:num_input_1st+1+7+num_output_1st])
+    x_data_test_1st_all.append(line[1:num_input_1st+1])
+    y_data_test_1st_all.append(line[num_input_1st+1+7:num_input_1st+1+7+num_output_1st])
 
-x_data_test = np.reshape(x_data_test, (-1, num_input))
-y_data_test = np.reshape(y_data_test, (-1, num_output))
+    x_data_test_2nd.append(line[num_input_1st+1+7:num_input_1st+1+7+num_output_1st])
+    y_data_test_2nd.append(line[-num_output_2nd:])
+
+x_data_test_1st = np.reshape(x_data_test_1st, (-1, num_input_1st))
+y_data_test_1st = np.reshape(y_data_test_1st, (-1, num_output_1st))
+x_data_test_1st_all = np.reshape(x_data_test_1st_all, (-1, num_input_1st))
+y_data_test_1st_all = np.reshape(y_data_test_1st_all, (-1, num_output_1st))
+x_data_test_2nd = np.reshape(x_data_test_2nd, (-1, num_input_2nd))
+y_data_test_2nd = np.reshape(y_data_test_2nd, (-1, num_output_2nd))
 
 # load validation data
 f_val = open('validation_data_.csv', 'r', encoding='utf-8')
 rdr_val = csv.reader(f_val)
-x_data_val = []
-y_data_val = []
+x_data_val_1st = []
+y_data_val_1st = []
+x_data_val_1st_all = []
+y_data_val_1st_all = []
+x_data_val_2nd = []
+y_data_val_2nd = []
 for line in rdr_val:
     line = [float(i) for i in line]
     if line[84]==0 :
-        x_data_val.append(line[1:num_input+1])
-        y_data_val.append(line[num_input+1+7:num_input+1+7+num_output])
+        x_data_val_1st.append(line[1:num_input_1st+1])
+        y_data_val_1st.append(line[num_input_1st+1+7:num_input_1st+1+7+num_output_1st])
+    x_data_val_1st_all.append(line[1:num_input_1st+1])
+    y_data_val_1st_all.append(line[num_input_1st+1+7:num_input_1st+1+7+num_output_1st])
+    x_data_val_2nd.append(line[num_input_1st+1+7:num_input_1st+1+7+num_output_1st])
+    y_data_val_2nd.append(line[-num_output_2nd:])
 
-x_data_val = np.reshape(x_data_val, (-1, num_input))
-y_data_val = np.reshape(y_data_val, (-1, num_output))
+x_data_val_1st = np.reshape(x_data_val_1st, (-1, num_input_1st))
+y_data_val_1st = np.reshape(y_data_val_1st, (-1, num_output_1st))
+x_data_val_1st_all = np.reshape(x_data_val_1st_all, (-1, num_input_1st))
+y_data_val_1st_all = np.reshape(y_data_val_1st_all, (-1, num_output_1st))
+x_data_val_2nd = np.reshape(x_data_val_2nd, (-1, num_input_2nd))
+y_data_val_2nd = np.reshape(y_data_val_2nd, (-1, num_output_2nd))
 
 
 # initialize
@@ -174,43 +250,85 @@ sess.run(tf.global_variables_initializer())
 if wandb_use == True:
     wandb.config.epoch = training_epochs
     wandb.config.batch_size = batch_size
-    wandb.config.learning_rate = learning_rate
+    wandb.config.learning_rate_1st = learning_rate_1st
+    wandb.config.learning_rate_2nd = learning_rate_2nd
     wandb.config.drop_out = drop_out
-    wandb.config.num_input = num_input
-    wandb.config.num_output = num_output
+    wandb.config.num_input_1st = num_input_1st
+    wandb.config.num_output_1st = num_output_1st
+    wandb.config.num_input_2nd = num_input_2nd
+    wandb.config.num_output_2nd = num_output_2nd
     wandb.config.total_batch = total_batch
     wandb.config.activation_function = "ReLU"
     wandb.config.training_episode = 1200
-    wandb.config.hidden_layers, wandb.config.hidden_neurons = m1.get_hidden_number()
+    wandb.config.hidden_layers_1st, wandb.config.hidden_neurons_1st, wandb.config.hidden_layers_2nd, wandb.config.hidden_neurons_2nd = m1.get_hidden_number()
     wandb.config.L2_regularization = regul_factor 
 
-# train my model
-train_mse = np.zeros(training_epochs)
-validation_mse = np.zeros(training_epochs)
+# Train 1st model
+train_mse_1st = np.zeros(training_epochs)
+validation_mse_1st = np.zeros(training_epochs)
 
 for epoch in range(training_epochs):
-    accu_train = 0
-    avg_reg_cost = 0
+    eror_train_1st = 0
     f = open('training_data_.csv', 'r', encoding='utf-8')
     rdr = csv.reader(f)
 
     for i in range(total_batch):
-        batch_xs, batch_ys = m1.next_batch(batch_size, rdr)
-        c, reg_c,_ = m1.train(batch_xs, batch_ys, drop_out)
-        accu_train += c / total_batch
-        avg_reg_cost += reg_c / total_batch
+        batch_xs_1st, batch_ys_1st= m1.next_batch_1st(batch_size, rdr)
+        c,_ = m1.train_1st(batch_xs_1st, batch_ys_1st)
+        eror_train_1st += c / total_batch
 
     print('Epoch:', '%04d' % (epoch + 1))
-    print('Train error =', '{:.9f}'.format(accu_train), 'Train l2 reg cost =', '{:.9f}'.format(avg_reg_cost))
+    print('1st Train error =', '{:.9f}'.format(eror_train_1st))
 
-    [accu_val, hypo, x_val, y_val, l2_reg_val] = m1.get_mean_error_hypothesis(x_data_val, y_data_val)
-    print('Validation error:', '{:.9f}'.format(accu_val), 'Validation l2 regularization:', '{:.9f}'.format(l2_reg_val))
+    [err_val, hypo, x_val, y_val] = m1.get_mean_error_hypothesis_1st(x_data_val_1st, y_data_val_1st)
+    print('1st Validation error:', '{:.9f}'.format(err_val))
 
-    train_mse[epoch] = accu_train
-    validation_mse[epoch] = accu_val
+    train_mse_1st[epoch] = eror_train_1st
+    validation_mse_1st[epoch] = err_val
 
     if wandb_use == True:
-        wandb.log({'training Accuracy': accu_train, 'validation Accuracy': accu_val, 'validation l2_reg': l2_reg_val})
+        wandb.log({'1st Training Error': eror_train_1st, '1st Validation Error': err_val})
+
+        if epoch % 20 == 0:
+            for var in tf.trainable_variables():
+                name = var.name
+                wandb.log({name: sess.run(var)})
+
+print('1st Learning Finished!')
+[err_test, hypo, x_test, y_test] = m1.get_mean_error_hypothesis_1st(x_data_test_1st, y_data_test_1st)
+print('Test Error: ', err_test)
+
+
+# Train 2nd model
+train_acc_2nd = np.zeros(training_epochs)
+validation_acc_2nd = np.zeros(training_epochs)
+
+for epoch in range(training_epochs):
+    acc_train_2nd = 0
+    f = open('training_data_.csv', 'r', encoding='utf-8')
+    rdr = csv.reader(f)
+
+    for i in range(total_batch):
+        batch_xs_1st, batch_ys_1st, batch_xs_2nd, batch_ys_2nd= m1.next_batch_2nd(batch_size, rdr)
+        hypo_1st = m1.get_hypothesis_1st(batch_xs_1st, drop_out)
+        resi = batch_xs_2nd - hypo_1st
+        c,_ = m1.train_2nd(resi, batch_ys_2nd, drop_out)
+        acc_train_2nd += c / total_batch
+
+    print('Epoch:', '%04d' % (epoch + 1))
+    print('2nd Train Accuracy =', '{:.9f}'.format(acc_train_2nd))
+
+
+    hypo_val = m1.get_hypothesis_1st(x_data_val_1st_all, drop_out)
+    resi_val = x_data_val_2nd - hypo_val
+    [acc_val, hypo, x_val, y_val] = m1.get_mean_error_hypothesis_2nd(resi_val, y_data_val_2nd)
+    print('2nd Validation Accuracy:', '{:.9f}'.format(acc_val))
+
+    train_acc_2nd[epoch] = acc_train_2nd
+    validation_acc_2nd[epoch] = acc_val
+
+    if wandb_use == True:
+        wandb.log({'Training Accuracy 2nd': acc_train_2nd, 'Validation Accuracy 2nd': acc_val})
 
         if epoch % 20 == 0:
             for var in tf.trainable_variables():
@@ -218,11 +336,13 @@ for epoch in range(training_epochs):
                 wandb.log({name: sess.run(var)})
 
 
-print('Learning Finished!')
-[accu_test, hypo, x_test, y_test, l2_reg_test] = m1.get_mean_error_hypothesis(x_data_test, y_data_test)
-# print('Error: ', error,"\n x_data: ", x_test,"\nHypothesis: ", hypo, "\n y_data: ", y_test)
-print('Test Error: ', accu_test)
-print('Test l2 regularization:', l2_reg_test)
+print('2nd Learning Finished!')
+hypo_test = m1.get_hypothesis_1st(x_data_test_1st_all, drop_out)
+resi_test = x_data_test_2nd - hypo_test
+[acc_test, hypo, x_test, y_test] = m1.get_mean_error_hypothesis_2nd(resi_test, y_data_test_2nd)
+print('Test Accuracy: ', acc_test)
+
+
 
 elapsed_time = time.time() - start_time
 print(elapsed_time)
@@ -235,8 +355,8 @@ if wandb_use == True:
     wandb.config.elapsed_time = elapsed_time
 
 epoch = np.arange(training_epochs)
-plt.plot(epoch, train_mse, 'r', label='train')
-plt.plot(epoch, validation_mse, 'b', label='validation')
+plt.plot(epoch, train_acc_2nd, 'r', label='train')
+plt.plot(epoch, validation_acc_2nd, 'b', label='validation')
 plt.legend()
 plt.xlabel('epoch')
 plt.ylabel('abs error')
