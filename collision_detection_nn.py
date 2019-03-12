@@ -10,7 +10,7 @@ import os
 wandb_use = True
 start_time = time.time()
 if wandb_use == True:
-    wandb.init(project="collision_detection_relu", tensorboard=False)
+    wandb.init(project="collision_detection_batch_normalization", tensorboard=False)
 
 class Model:
 
@@ -23,6 +23,7 @@ class Model:
         with tf.variable_scope(self.name):
             self.X = tf.placeholder(tf.float32, shape=[None, num_input], name = "input")
             self.Y = tf.placeholder(tf.int64, shape=[None, num_output], name= "output")
+            self.is_train = tf.placeholder(tf.bool, name = "is_train")
             self.keep_prob = tf.placeholder(tf.float32, name="keep_prob")
             self.hidden_layers = 0
             self.hidden_neurons = 40
@@ -33,12 +34,14 @@ class Model:
             b1 = tf.Variable(tf.random_normal([self.hidden_neurons]))
             L1 = tf.matmul(self.X, W1) +b1
             L1 = tf.nn.relu(L1)
+            L1 = tf.layers.batch_normalization(L1, training=self.is_train)
             L1 = tf.nn.dropout(L1, keep_prob=self.keep_prob)
 
             W2 = tf.get_variable("W2", shape=[self.hidden_neurons, self.hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
             b2 = tf.Variable(tf.random_normal([self.hidden_neurons]))
             L2 = tf.matmul(L1, W2) +b2
             L2 = tf.nn.relu(L2)
+            L2 = tf.layers.batch_normalization(L2, training=self.is_train)
             L2 = tf.nn.dropout(L2, keep_prob=self.keep_prob)
             self.hidden_layers += 1
 
@@ -46,44 +49,9 @@ class Model:
             b3 = tf.Variable(tf.random_normal([self.hidden_neurons]))
             L3 = tf.matmul(L2, W3) +b3
             L3 = tf.nn.relu(L3)
+            L3 = tf.layers.batch_normalization(L3, training=self.is_train)
             L3 = tf.nn.dropout(L3, keep_prob=self.keep_prob)
             self.hidden_layers += 1
-
-            #W4 = tf.get_variable("W4", shape=[self.hidden_neurons, self.hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
-            #b4 = tf.Variable(tf.random_normal([self.hidden_neurons]))
-            #L4 = tf.matmul(L3, W4) +b4
-            #L4 = tf.nn.sigmoid(L4)
-            #L4 = tf.nn.dropout(L4, keep_prob=self.keep_prob)
-            #self.hidden_layers += 1
-
-            #W5 = tf.get_variable("W5", shape=[self.hidden_neurons, self.hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
-            #b5 = tf.Variable(tf.random_normal([self.hidden_neurons]))
-            #L5 = tf.matmul(L4, W5) +b5
-            #L5 = tf.nn.sigmoid(L5)
-            #L5 = tf.nn.dropout(L5, keep_prob=self.keep_prob)
-            #self.hidden_layers += 1
-
-            # W6 = tf.get_variable("W6", shape=[hidden_neurons, hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
-            # b6 = tf.Variable(tf.random_normal([hidden_neurons]))
-            # L6 = tf.matmul(L5, W6) +b6
-            # L6 = tf.nn.sigmoid(L6)
-            # L6 = tf.nn.dropout(L6, keep_prob=self.keep_prob)
-            # self.hidden_layers += 1
-
-            # W7 = tf.get_variable("W7", shape=[hidden_neurons, hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
-            # b7 = tf.Variable(tf.random_normal([hidden_neurons]))
-            # L7 = tf.matmul(L6, W7) +b7
-            # L7 = tf.nn.sigmoid(L7)
-            # L7 = tf.nn.dropout(L7, keep_prob=self.keep_prob)
-            # self.hidden_layers += 1
-
-            # W8 = tf.get_variable("W8", shape=[hidden_neurons, hidden_neurons], initializer=tf.contrib.layers.xavier_initializer())
-            # b8 = tf.Variable(tf.random_normal([hidden_neurons]))
-            # L8 = tf.matmul(L7, W8) +b8
-            # #L8 = tf.nn.relu(L8)
-            # L8 = tf.nn.sigmoid(L8)
-            # L8 = tf.nn.dropout(L8, keep_prob=self.keep_prob)
-            # self.hidden_layers += 1
 
             W9 = tf.get_variable("W9", shape=[self.hidden_neurons, num_output], initializer=tf.contrib.layers.xavier_initializer())
             b9 = tf.Variable(tf.random_normal([num_output]))
@@ -96,18 +64,20 @@ class Model:
             self.l2_reg = regul_factor* self.l2_reg
             self.cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.logits, labels=self.Y))
             #self.cost = tf.reduce_mean(tf.reduce_mean(tf.square(self.hypothesis - self.Y)))
-            self.optimizer = tf.train.AdamOptimizer(learning_rate= learning_rate).minimize(self.cost + self.l2_reg)
+            self.update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+            with tf.control_dependencies(self.update_ops):
+                self.optimizer = tf.train.AdamOptimizer(learning_rate= learning_rate).minimize(self.cost + self.l2_reg)
         
         self.prediction = tf.argmax(self.hypothesis, 1)
         self.correct_prediction = tf.equal(self.prediction, tf.argmax(self.Y, 1))
         self.accuracy = tf.reduce_mean(tf.cast(self.correct_prediction, tf.float32))
 
-    def get_mean_error_hypothesis(self, x_test, y_test, keep_prop=1.0):
-        return self.sess.run([self.accuracy, self.hypothesis, self.X, self.Y, self.l2_reg], feed_dict={self.X: x_test, self.Y: y_test, self.keep_prob: keep_prop})
+    def get_mean_error_hypothesis(self, x_test, y_test, keep_prop=1.0, is_train=False):
+        return self.sess.run([self.accuracy, self.hypothesis, self.X, self.Y, self.l2_reg], feed_dict={self.X: x_test, self.Y: y_test, self.keep_prob: keep_prop, self.is_train: is_train})
 
-    def train(self, x_data, y_data, keep_prop=1.0):
+    def train(self, x_data, y_data, keep_prop=1.0, is_train=True):
         return self.sess.run([self.accuracy, self.l2_reg, self.optimizer], feed_dict={
-            self.X: x_data, self.Y: y_data, self.keep_prob: keep_prop})
+            self.X: x_data, self.Y: y_data, self.keep_prob: keep_prop, self.is_train: is_train})
 
     def next_batch(self, num, data):
         x_batch = []
@@ -134,7 +104,7 @@ output_idx = 6
 
 # parameters
 learning_rate = 0.000010 #0.000001
-training_epochs = 3000
+training_epochs = 1500
 batch_size = 100
 total_batch = 1800
 drop_out = 1.0
