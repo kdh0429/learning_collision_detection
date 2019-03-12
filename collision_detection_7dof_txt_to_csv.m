@@ -17,13 +17,21 @@ for i=1:size(RawData,1)-1
     RawData(i,36) = RawData(i+1,22);
 end
 
-RawData(1,30) = 0;
-RawData(1,31) = 0;
-RawData(1,32) = 0;
-RawData(1,33) = 0;
-RawData(1,34) = 0;
-RawData(1,35) = 0;
-RawData(1,36) = 0;
+RawData(size(RawData,1),23) = 0;
+RawData(size(RawData,1),24) = 0;
+RawData(size(RawData,1),25) = 0;
+RawData(size(RawData,1),26) = 0;
+RawData(size(RawData,1),27) = 0;
+RawData(size(RawData,1),28) = 0;
+RawData(size(RawData,1),29) = 0;
+
+RawData(size(RawData,1),30) = 0;
+RawData(size(RawData,1),31) = 0;
+RawData(size(RawData,1),32) = 0;
+RawData(size(RawData,1),33) = 0;
+RawData(size(RawData,1),34) = 0;
+RawData(size(RawData,1),35) = 0;
+RawData(size(RawData,1),36) = 0;
     
 Training = RawData(randperm(fix(size(RawData,1)*1.0)),:);
 Validation = RawData(randperm(fix(size(RawData,1)*1.0)),:);

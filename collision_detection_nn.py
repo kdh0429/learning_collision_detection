@@ -71,8 +71,8 @@ class Model:
 
     def _build_2nd_network(self):
         with tf.variable_scope(self.name):
-            self.X_2nd = tf.placeholder(tf.float32, shape=[None, num_input_2nd], name = "input")
-            self.Y_2nd = tf.placeholder(tf.float32, shape=[None, num_output_2nd], name= "output")
+            self.X_2nd = tf.placeholder(tf.float32, shape=[None, num_input_2nd], name = "input_2nd")
+            self.Y_2nd = tf.placeholder(tf.float32, shape=[None, num_output_2nd], name= "output_2nd")
             self.keep_prob_2nd = tf.placeholder(tf.float32, name="keep_prob_2nd")
             self.hidden_layers_2nd = 0
             self.hidden_neurons_2nd = 40
@@ -142,7 +142,7 @@ class Model:
             line = [float(i) for i in line]
             if(line[84] == 0):
                 x_batch_1st_network.append(line[1:num_input_1st+1])
-                y_batch_1st_network.append(line[num_input_1st+1+7:num_input_1st+1+7+num_output_1st])
+                y_batch_1st_network.append(line[num_input_1st+1:num_input_1st+1+num_output_1st])
             i = i+1
 
             if i == num:
@@ -158,8 +158,8 @@ class Model:
         for line in data:
             line = [float(i) for i in line]
             x_batch_1st_network.append(line[1:num_input_1st+1])
-            y_batch_1st_network.append(line[num_input_1st+1+7:num_input_1st+1+7+num_output_1st])
-            x_batch_2nd_network.append(line[num_input_1st+1+7:num_input_1st+1+7+num_output_1st])
+            y_batch_1st_network.append(line[num_input_1st+1:num_input_1st+1+num_output_1st])
+            x_batch_2nd_network.append(line[num_input_1st+1:num_input_1st+1+num_output_1st])
             y_batch_2nd_network.append(line[-num_output_2nd:])
             i = i+1
 
@@ -173,14 +173,14 @@ class Model:
 
 # input/output number
 num_input_1st = 21
-num_output_1st = 7
+num_output_1st = 14
 num_input_2nd = num_output_1st
 num_output_2nd = 2
 
 # parameters
 learning_rate_1st = 0.00001 #0.000001
 learning_rate_2nd = 0.00001
-training_epochs = 3000
+training_epochs = 1000
 batch_size = 150
 total_batch = 1200
 drop_out = 1.0
@@ -200,11 +200,11 @@ for line in rdr_test:
     line = [float(i) for i in line]
     if line[84]==0 :
         x_data_test_1st.append(line[1:num_input_1st+1])
-        y_data_test_1st.append(line[num_input_1st+1+7:num_input_1st+1+7+num_output_1st])
+        y_data_test_1st.append(line[num_input_1st+1:num_input_1st+1+num_output_1st])
     x_data_test_1st_all.append(line[1:num_input_1st+1])
-    y_data_test_1st_all.append(line[num_input_1st+1+7:num_input_1st+1+7+num_output_1st])
+    y_data_test_1st_all.append(line[num_input_1st+1:num_input_1st+1+num_output_1st])
 
-    x_data_test_2nd.append(line[num_input_1st+1+7:num_input_1st+1+7+num_output_1st])
+    x_data_test_2nd.append(line[num_input_1st+1:num_input_1st+1+num_output_1st])
     y_data_test_2nd.append(line[-num_output_2nd:])
 
 x_data_test_1st = np.reshape(x_data_test_1st, (-1, num_input_1st))
@@ -227,10 +227,10 @@ for line in rdr_val:
     line = [float(i) for i in line]
     if line[84]==0 :
         x_data_val_1st.append(line[1:num_input_1st+1])
-        y_data_val_1st.append(line[num_input_1st+1+7:num_input_1st+1+7+num_output_1st])
+        y_data_val_1st.append(line[num_input_1st+1:num_input_1st+1+num_output_1st])
     x_data_val_1st_all.append(line[1:num_input_1st+1])
-    y_data_val_1st_all.append(line[num_input_1st+1+7:num_input_1st+1+7+num_output_1st])
-    x_data_val_2nd.append(line[num_input_1st+1+7:num_input_1st+1+7+num_output_1st])
+    y_data_val_1st_all.append(line[num_input_1st+1:num_input_1st+1+num_output_1st])
+    x_data_val_2nd.append(line[num_input_1st+1:num_input_1st+1+num_output_1st])
     y_data_val_2nd.append(line[-num_output_2nd:])
 
 x_data_val_1st = np.reshape(x_data_val_1st, (-1, num_input_1st))
