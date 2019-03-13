@@ -28,27 +28,28 @@ class Model:
             self.is_train = tf.placeholder(tf.bool, name="is_train")
             self.hidden_layers = 0
             self.hidden_neurons = 20
+            self.regularizer = tf.contrib.layers.l2_regularizer(scale=regul_factor)
 
-            L1 = tf.layers.conv2d(inputs= self.X_input, filters= 32, kernel_size= [3,3], padding="SAME", activation=tf.nn.relu)
+            L1 = tf.layers.conv2d(inputs= self.X_input, filters= 32, kernel_size= [3,3], padding="SAME", activation=tf.nn.relu, kernel_regularizer=self.regularizer)
             L1 = tf.layers.batch_normalization(L1, training=self.is_train)
             L1 = tf.layers.dropout(L1, rate=1-self.keep_prob, training=self.is_train)
 
-            L2 = tf.layers.conv2d(inputs= L1, filters= 32, kernel_size= [3,3], padding="SAME", activation=tf.nn.relu)
+            L2 = tf.layers.conv2d(inputs= L1, filters= 32, kernel_size= [3,3], padding="SAME", activation=tf.nn.relu, kernel_regularizer=self.regularizer)
             L2 = tf.layers.batch_normalization(L2, training=self.is_train)
             L2 = tf.layers.dropout(L2, rate=1-self.keep_prob, training=self.is_train)
             self.hidden_layers += 1
 
-            L3 = tf.layers.conv2d(inputs= L2, filters= 32, kernel_size= [3,3], padding="SAME", activation=tf.nn.relu)
+            L3 = tf.layers.conv2d(inputs= L2, filters= 32, kernel_size= [3,3], padding="SAME", activation=tf.nn.relu, kernel_regularizer=self.regularizer)
             L3 = tf.layers.batch_normalization(L3, training=self.is_train)
             L3 = tf.layers.dropout(L3, rate=1-self.keep_prob, training=self.is_train)
             self.hidden_layers += 1
 
             Flat = tf.reshape(L3, [-1, 32*num_time_step*num_input])
-            Dense1 = tf.layers.dense(inputs=Flat, units=self.hidden_neurons, activation=tf.nn.relu)
+            Dense1 = tf.layers.dense(inputs=Flat, units=self.hidden_neurons, activation=tf.nn.relu, kernel_regularizer=self.regularizer)
             Dense1 = tf.layers.batch_normalization(Dense1, training=self.is_train)
             self.hidden_layers += 1
 
-            Dense2 = tf.layers.dense(inputs=Dense1, units=self.hidden_neurons, activation=tf.nn.relu)
+            Dense2 = tf.layers.dense(inputs=Dense1, units=self.hidden_neurons, activation=tf.nn.relu, kernel_regularizer=self.regularizer)
             Dense2 = tf.layers.batch_normalization(Dense2, training=self.is_train)
             self.hidden_layers += 1
             
@@ -56,10 +57,11 @@ class Model:
             self.hypothesis = tf.nn.softmax(self.logits)
             self.hypothesis = tf.identity(self.hypothesis, "hypothesis")
 
+            self.l2_reg = tf.losses.get_regularization_loss()
             self.cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.logits, labels=self.Y))
             self.update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
             with tf.control_dependencies(self.update_ops):
-                self.optimizer = tf.train.AdamOptimizer(learning_rate= learning_rate).minimize(self.cost)
+                self.optimizer = tf.train.AdamOptimizer(learning_rate= learning_rate).minimize(self.cost+self.l2_reg)
         
         self.prediction = tf.argmax(self.hypothesis, 1)
         self.correct_prediction = tf.equal(self.prediction, tf.argmax(self.Y, 1))
@@ -78,7 +80,8 @@ class Model:
         i = 0
         for line in data:
             line = [float(i) for i in line]
-            x_batch.append(line[1:num_input*num_time_step+1])
+            for j in range(num_time_step):
+                x_batch.append(line[1+j*28:1+j*28+num_input])
             y_batch.append(line[-num_output:])
             i = i+1
 
@@ -97,13 +100,13 @@ num_time_step = 5
 
 # parameters
 learning_rate = 0.000100 #0.000001
-training_epochs = 40
+training_epochs = 100
 batch_size = 150
 total_batch = 1200
 total_batch_val = 300
 total_batch_test = 300
 drop_out = 1.0
-regul_factor = 0.00000
+regul_factor = 0.0001
 
 
 # initialize
