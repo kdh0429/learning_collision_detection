@@ -16,26 +16,19 @@ for i in range(9):
     f = open(path, 'r', encoding='utf-8')
     rdr = csv.reader(f)
     t = []
-    stack = []
     x_data_raw = []
     y_data_raw = []
     num_data = 0
     for line in rdr:
         line = [float(i) for i in line]
-        stack.append(line[1:num_input+1])
-        if num_data >= num_time_step -1:
-            y_data_raw.append(line[-num_output:])
+        x_data_raw.append(line[1:num_input*num_time_step+1])
+        y_data_raw.append(line[-num_output:])
         num_data=num_data+1
-
-    for j in range(num_data - num_time_step+1):
-        for k in range(num_time_step):
-            x_data_raw.append(stack[j+k:j+k+1])
 
     t = range(len(y_data_raw))
     t = np.reshape(t,(-1,1))
     x_data_raw = np.reshape(x_data_raw, (-1, num_time_step*num_input))
     y_data_raw = np.reshape(y_data_raw, (-1, num_output))
-
 
 
     tf.reset_default_graph()

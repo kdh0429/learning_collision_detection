@@ -10,7 +10,7 @@ import os
 wandb_use = True
 start_time = time.time()
 if wandb_use == True:
-    wandb.init(project="collision_detection_CNN", tensorboard=False)
+    wandb.init(project="collision_detection_CNN_data_edit", tensorboard=False)
 
 class Model:
 
@@ -30,16 +30,16 @@ class Model:
             self.hidden_neurons = 20
 
             L1 = tf.layers.conv2d(inputs= self.X_input, filters= 32, kernel_size= [3,3], padding="SAME", activation=tf.nn.relu)
-            #L1 = tf.layers.batch_normalization(L1, training=self.is_train)
+            L1 = tf.layers.batch_normalization(L1, training=self.is_train)
             L1 = tf.layers.dropout(L1, rate=1-self.keep_prob, training=self.is_train)
 
             L2 = tf.layers.conv2d(inputs= L1, filters= 32, kernel_size= [3,3], padding="SAME", activation=tf.nn.relu)
-            #L2 = tf.layers.batch_normalization(L2, training=self.is_train)
+            L2 = tf.layers.batch_normalization(L2, training=self.is_train)
             L2 = tf.layers.dropout(L2, rate=1-self.keep_prob, training=self.is_train)
             self.hidden_layers += 1
 
             L3 = tf.layers.conv2d(inputs= L2, filters= 32, kernel_size= [3,3], padding="SAME", activation=tf.nn.relu)
-            #L3 = tf.layers.batch_normalization(L3, training=self.is_train)
+            L3 = tf.layers.batch_normalization(L3, training=self.is_train)
             L3 = tf.layers.dropout(L3, rate=1-self.keep_prob, training=self.is_train)
             self.hidden_layers += 1
 
@@ -73,23 +73,17 @@ class Model:
             self.X: x_data, self.Y: y_data, self.keep_prob: keep_prop, self.is_train: is_train})
 
     def next_batch(self, num, data):
-        stack = []
         x_batch = []
         y_batch = []
         i = 0
         for line in data:
             line = [float(i) for i in line]
-            stack.append(line[1:num_input+1])
-            if i >= num_time_step-1:
-                y_batch.append(line[-num_output:])
+            x_batch.append(line[1:num_input*num_time_step+1])
+            y_batch.append(line[-num_output:])
             i = i+1
 
             if i == num:
                 break
-
-        for j in range(num - num_time_step +1):
-            for k in range(num_time_step):
-                x_batch.append(stack[j+k:j+k+1])
 
         return [np.asarray(np.reshape(x_batch, (-1, num_time_step*num_input))), np.asarray(np.reshape(y_batch,(-1,num_output)))]
 
@@ -97,13 +91,13 @@ class Model:
         return [self.hidden_layers, self.hidden_neurons]
 
 # input/output number
-num_input = 21
+num_input = 28
 num_output = 2
 num_time_step = 5
 
 # parameters
 learning_rate = 0.000100 #0.000001
-training_epochs = 500
+training_epochs = 40
 batch_size = 150
 total_batch = 1200
 total_batch_val = 300
