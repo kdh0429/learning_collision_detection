@@ -5,29 +5,38 @@ import matplotlib.pyplot as plt
 from sklearn import preprocessing
 
 # parameters
-num_input = 42
+num_input = 28
 num_output = 2
+num_time_step = 5
 
 
-for i in range(10):
+for i in range(9):
     path = 'test_data_set/20190226_collision_10_represent/' + str(i+1) + '/raw_data_.csv'
     # raw data
     f = open(path, 'r', encoding='utf-8')
     rdr = csv.reader(f)
     t = []
+    stack = []
     x_data_raw = []
     y_data_raw = []
-
+    num_data = 0
     for line in rdr:
         line = [float(i) for i in line]
-        #t.append(line[0])
-        x_data_raw.append(line[1:num_input+1])
-        #x_data_raw.append(line[29:43])
-        y_data_raw.append(line[-num_output:])
-    t = range(len(x_data_raw))
+        stack.append(line[1:num_input+1])
+        if num_data >= num_time_step -1:
+            y_data_raw.append(line[-num_output:])
+        num_data=num_data+1
+
+    for j in range(num_data - num_time_step+1):
+        for k in range(num_time_step):
+            x_data_raw.append(stack[j+k:j+k+1])
+
+    t = range(len(y_data_raw))
     t = np.reshape(t,(-1,1))
-    x_data_raw = np.reshape(x_data_raw, (-1, num_input))
+    x_data_raw = np.reshape(x_data_raw, (-1, num_time_step*num_input))
     y_data_raw = np.reshape(y_data_raw, (-1, num_output))
+
+
 
     tf.reset_default_graph()
     sess = tf.Session()
@@ -40,8 +49,9 @@ for i in range(10):
     y = graph.get_tensor_by_name("m1/output:0")
     keep_prob = graph.get_tensor_by_name("m1/keep_prob:0")
     hypothesis = graph.get_tensor_by_name("m1/hypothesis:0")
+    is_train = graph.get_tensor_by_name("m1/is_train:0")
 
-    hypo = sess.run(hypothesis, feed_dict={x: x_data_raw, keep_prob: 1.0})
+    hypo = sess.run(hypothesis, feed_dict={x: x_data_raw, keep_prob: 1.0, is_train:False})
 
     prediction = np.argmax(hypo, 1)
     correct_prediction = np.equal(prediction, np.argmax(y_data_raw, 1))

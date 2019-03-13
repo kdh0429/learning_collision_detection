@@ -29,24 +29,21 @@ class Model:
             self.hidden_layers = 0
             self.hidden_neurons = 20
 
-            L1 = tf.layers.conv2d(inputs= self.X_input, filters= 64, kernel_size= [3,3], padding="SAME", activation=tf.nn.relu)
-            L1 = tf.nn.relu(L1)
-            L1 = tf.layers.batch_normalization(L1, training=self.is_train)
-            L1 = tf.layers.dropout(L1, rate=self.keep_prob, training=self.is_train)
+            L1 = tf.layers.conv2d(inputs= self.X_input, filters= 32, kernel_size= [3,3], padding="SAME", activation=tf.nn.relu)
+            #L1 = tf.layers.batch_normalization(L1, training=self.is_train)
+            L1 = tf.layers.dropout(L1, rate=1-self.keep_prob, training=self.is_train)
 
-            L2 = tf.layers.conv2d(inputs= L1, filters= 128, kernel_size= [3,3], padding="SAME", activation=tf.nn.relu)
-            L2 = tf.nn.relu(L2)
-            L2 = tf.layers.batch_normalization(L2, training=self.is_train)
-            L2 = tf.layers.dropout(L2, rate=self.keep_prob, training=self.is_train)
+            L2 = tf.layers.conv2d(inputs= L1, filters= 32, kernel_size= [3,3], padding="SAME", activation=tf.nn.relu)
+            #L2 = tf.layers.batch_normalization(L2, training=self.is_train)
+            L2 = tf.layers.dropout(L2, rate=1-self.keep_prob, training=self.is_train)
             self.hidden_layers += 1
 
-            L3 = tf.layers.conv2d(inputs= L2, filters= 256, kernel_size= [3,3], padding="SAME", activation=tf.nn.relu)
-            L3 = tf.nn.relu(L3)
-            L3 = tf.layers.batch_normalization(L3, training=self.is_train)
-            L3 = tf.layers.dropout(L3, rate=self.keep_prob, training=self.is_train)
+            L3 = tf.layers.conv2d(inputs= L2, filters= 32, kernel_size= [3,3], padding="SAME", activation=tf.nn.relu)
+            #L3 = tf.layers.batch_normalization(L3, training=self.is_train)
+            L3 = tf.layers.dropout(L3, rate=1-self.keep_prob, training=self.is_train)
             self.hidden_layers += 1
 
-            Flat = tf.reshape(L3, [-1, 256*num_time_step*num_input])
+            Flat = tf.reshape(L3, [-1, 32*num_time_step*num_input])
             Dense1 = tf.layers.dense(inputs=Flat, units=self.hidden_neurons, activation=tf.nn.relu)
             Dense1 = tf.layers.batch_normalization(Dense1, training=self.is_train)
             self.hidden_layers += 1
@@ -60,7 +57,9 @@ class Model:
             self.hypothesis = tf.identity(self.hypothesis, "hypothesis")
 
             self.cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.logits, labels=self.Y))
-            self.optimizer = tf.train.AdamOptimizer(learning_rate= learning_rate).minimize(self.cost)
+            self.update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+            with tf.control_dependencies(self.update_ops):
+                self.optimizer = tf.train.AdamOptimizer(learning_rate= learning_rate).minimize(self.cost)
         
         self.prediction = tf.argmax(self.hypothesis, 1)
         self.correct_prediction = tf.equal(self.prediction, tf.argmax(self.Y, 1))
@@ -91,70 +90,26 @@ class Model:
         for j in range(num - num_time_step +1):
             for k in range(num_time_step):
                 x_batch.append(stack[j+k:j+k+1])
-        
+
         return [np.asarray(np.reshape(x_batch, (-1, num_time_step*num_input))), np.asarray(np.reshape(y_batch,(-1,num_output)))]
 
     def get_hidden_number(self):
         return [self.hidden_layers, self.hidden_neurons]
 
 # input/output number
-num_input = 28
+num_input = 21
 num_output = 2
-output_idx = 6
 num_time_step = 5
 
 # parameters
-learning_rate = 0.000010 #0.000001
-training_epochs = 1000
-batch_size = 100
-total_batch = 1800
+learning_rate = 0.000100 #0.000001
+training_epochs = 500
+batch_size = 150
+total_batch = 1200
+total_batch_val = 300
+total_batch_test = 300
 drop_out = 1.0
 regul_factor = 0.00000
-
-# loading testing data
-f_test = open('testing_data_.csv', 'r', encoding='utf-8')
-rdr_test = csv.reader(f_test)
-
-stack_test = []
-x_data_test = []
-y_data_test = []
-i_test = 0
-for line in rdr_test:
-    line = [float(i) for i in line]
-    stack_test.append(line[1:num_input+1])
-    if i_test >= num_time_step-1:
-        y_data_test.append(line[-num_output:])
-    i_test = i_test+1
-
-for j in range(i_test - num_time_step +1):
-    for k in range(num_time_step):
-        x_data_test.append(stack_test[j+k:j+k+1])
-
-x_data_test = np.reshape(x_data_test, (-1, num_time_step*num_input))
-y_data_test = np.reshape(y_data_test, (-1, num_output))
-
-
-# load validation data
-f_val = open('validation_data_.csv', 'r', encoding='utf-8')
-rdr_val = csv.reader(f_val)
-
-stack_val = []
-x_data_val = []
-y_data_val = []
-i_val = 0
-for line in rdr_val:
-    line = [float(i) for i in line]
-    stack_val.append(line[1:num_input+1])
-    if i_val >= num_time_step-1:
-        y_data_val.append(line[-num_output:])
-    i_val = i_val+1
-
-for j in range(i_val - num_time_step +1):
-    for k in range(num_time_step):
-        x_data_val.append(stack_val[j+k:j+k+1])
-
-x_data_val = np.reshape(x_data_val, (-1, num_time_step*num_input))
-y_data_val = np.reshape(y_data_val, (-1, num_output))
 
 
 # initialize
@@ -182,6 +137,7 @@ validation_mse = np.zeros(training_epochs)
 
 for epoch in range(training_epochs):
     accu_train = 0
+    accu_val = 0
     f = open('training_data_.csv', 'r', encoding='utf-8')
     rdr = csv.reader(f)
 
@@ -193,8 +149,13 @@ for epoch in range(training_epochs):
     print('Epoch:', '%04d' % (epoch + 1))
     print('Train Accuracy =', '{:.9f}'.format(accu_train))
 
-    [accu_val, hypo, x_val, y_val] = m1.get_mean_error_hypothesis(x_data_val, y_data_val)
-    print('Validation Accuracy:', '{:.9f}'.format(accu_val))
+    f_val = open('validation_data_.csv', 'r', encoding='utf-8')
+    rdr_val = csv.reader(f_val)
+    for i in range(total_batch_val):
+        batch_xs_val, batch_ys_val = m1.next_batch(batch_size, rdr_val)
+        c, _, _, _ = m1.get_mean_error_hypothesis(batch_xs_val, batch_ys_val)
+        accu_val += c / total_batch_val
+    print('Validation Accuracy =', '{:.9f}'.format(accu_val))
 
     train_mse[epoch] = accu_train
     validation_mse[epoch] = accu_val
@@ -202,15 +163,22 @@ for epoch in range(training_epochs):
     if wandb_use == True:
         wandb.log({'training Accuracy': accu_train, 'validation Accuracy': accu_val})
 
-        if epoch % 20 ==0:
-            for var in tf.trainable_variables():
-                name = var.name
-                wandb.log({name: sess.run(var)})
+        # if epoch % 20 ==0:
+        #     for var in tf.trainable_variables():
+        #         name = var.name
+        #         wandb.log({name: sess.run(var)})
 
 
 print('Learning Finished!')
-[accu_test, hypo, x_test, y_test] = m1.get_mean_error_hypothesis(x_data_test, y_data_test)
-# print('Error: ', error,"\n x_data: ", x_test,"\nHypothesis: ", hypo, "\n y_data: ", y_test)
+
+f_test = open('testing_data_.csv', 'r', encoding='utf-8')
+rdr_test = csv.reader(f_test)
+accu_test = 0
+
+for i in range(total_batch_test):
+    batch_xs_test, batch_ys_test = m1.next_batch(batch_size, rdr_test)
+    c, _, _, _  = m1.get_mean_error_hypothesis(batch_xs_test, batch_ys_test)
+    accu_test += c / total_batch_test
 print('Test Accuracy: ', accu_test)
 
 elapsed_time = time.time() - start_time
